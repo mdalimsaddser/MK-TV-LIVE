@@ -1,514 +1,415 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-    <title>LiveKhela Clone - Sports & Live TV</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>md sabbir  TV</title>
     
-    <!-- Fonts & Icons -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg: #020617; /* Deep cinematic black/blue */
-            --panel: rgba(8, 19, 33, 0.7);
-            --panel2: #0b1728;
-            --panel3: #10223b;
-            --line: rgba(148,163,184,.12);
-            --text: #f8fafc;
-            --muted: #9aacbf;
-            --brand: #0b84ff;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --radius: 12px;
-            --shadow: 0 18px 48px rgba(0,0,0,.5);
+            --bg-sidebar: #222b3d;
+            --bg-player: #000000;
+            --bg-item: #313d53;
+            --bg-item-hover: #3d4a63;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-active: #2ecc71; /* Green glowing border */
+            --glow-active: rgba(46, 204, 113, 0.4);
+            --num-bg-dark: #1e293b;
+            --num-bg-blue: #1d4ed8;
         }
-        
-        * { box-sizing: border-box; }
-        html { background: var(--bg); scroll-behavior: smooth; }
-        body { 
-            margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); 
-            font-family: 'Nunito', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; 
-        }
-        
-        /* Advanced Breathing Cinematic Background */
-        body:before { 
-            content: ''; position: fixed; inset: 0; z-index: -1; 
-            background: radial-gradient(circle at 15% 20%, rgba(11, 132, 255, 0.15), transparent 40%),
-                        radial-gradient(circle at 85% 80%, rgba(239, 68, 68, 0.1), transparent 40%), 
-                        var(--bg); 
-            animation: breathe 8s infinite alternate ease-in-out;
-        }
-        @keyframes breathe { 0% { opacity: 0.7; transform: scale(1); } 100% { opacity: 1; transform: scale(1.05); } }
 
-        a { color: inherit; text-decoration: none; }
-        button, input, select { font: inherit; cursor: pointer; outline: none; border: none; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        .page { 
-            width: 100%; max-width: 1560px; margin: 0 auto; padding: 20px 22px 34px; 
-            display: grid; grid-template-columns: minmax(260px,320px) minmax(0,1fr) minmax(260px,320px); 
-            grid-template-areas: 'score score score' 'servers player info' 'servers match info' 'servers schedule info' 'footer footer footer'; 
-            gap: 16px; align-items: start; 
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-player);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
-        
-        .mlbd-scoreboard { 
-            grid-area: score; margin: 0; min-height: 86px; border-bottom: 2px solid var(--brand); 
-            background: linear-gradient(135deg, rgba(35, 36, 40, 0.8), rgba(28, 29, 33, 0.8)); 
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            padding: 16px 28px; display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); 
-            align-items: center; gap: 18px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.05);
-        }
-        .score-team { display: flex; align-items: center; gap: 13px; color: #fff; font-size: 24px; font-weight: 1000; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .score-team-right { justify-content: flex-end; text-align: right; }
-        .score-team img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: #fff; box-shadow: 0 8px 22px rgba(0,0,0,.5); border: 2px solid rgba(255,255,255,0.1); }
-        .score-center { text-align: center; color: #fff; }
-        .score-live { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 16px; border-radius: 20px; background: var(--danger); font-size: 13px; font-weight: 1000; text-transform: uppercase; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
-        .score-live span { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: pulse 1s infinite alternate; box-shadow: 0 0 8px #fff; }
-        .score-title { margin-top: 8px; color: #b7bac1; font-size: 13px; font-weight: 1000; text-transform: uppercase; letter-spacing: 1px; }
-        
-        @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1.1); } }
 
-        .player-card { grid-area: player; width: 100%; min-width: 0; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6)); }
-        .player-wrap { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px 12px 0 0; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); border-bottom: none; }
-        #liveVideo { width: 100%; height: 100%; object-fit: contain; outline: none; }
-        .player-bar { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(470px, auto); gap: 10px; align-items: center; padding: 16px; background: var(--panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0 0 12px 12px; }
-        .now-playing-switch { display: flex; align-items: center; gap: 10px; }
-        .bar-channel-picker-btn { width: 100%; height: 50px; border-radius: 8px; border: 1px solid rgba(11,132,255,.3); background: rgba(16, 43, 74, 0.6); color: #fff; display: flex; align-items: center; gap: 12px; padding: 0 16px; font-weight: 1000; text-transform: uppercase; text-align: left; transition: all 0.3s ease; }
-        .bar-channel-picker-btn:hover { background: rgba(16, 43, 74, 0.9); border-color: var(--brand); box-shadow: 0 0 15px rgba(11,132,255,0.2); }
-        .bar-actions { display: flex; gap: 10px; justify-content: flex-end; }
-        .action-btn { height: 46px; padding: 0 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,.05); background: rgba(255,255,255,0.05); color: #fff; font-weight: 900; display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase; font-size: 13px; transition: 0.3s ease; backdrop-filter: blur(5px); }
-        .action-btn.primary { background: linear-gradient(135deg, #113a63, #0b84ff); border-color: rgba(11,132,255,.5); box-shadow: 0 4px 15px rgba(11,132,255,0.3); }
-        .action-btn:hover { transform: translateY(-2px); filter: brightness(1.15); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        /* --- Sidebar Layout --- */
+        .sidebar {
+            width: 320px;
+            background-color: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #111;
+            z-index: 10;
+        }
 
-        .quick-switch { grid-area: servers; position: sticky; top: 16px; height: calc(100vh - 40px); background: var(--panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; display: flex; flex-direction: column; box-shadow: var(--shadow); overflow: hidden; }
-        .switch-head { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); }
-        .switch-title { color: #fff; font-size: 20px; font-weight: 1000; text-transform: uppercase; letter-spacing: 0.5px; }
-        .channel-tools { padding: 16px; }
-        .search-box input { width: 100%; height: 46px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0 16px; font-family: inherit; font-size: 15px; font-weight: 600; transition: border-color 0.3s ease; }
-        .search-box input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(11,132,255,0.1); }
-        .channel-strip { flex: 1; overflow-y: auto; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
-        
-        /* Advanced Glassmorphism Cards */
-        .channel-card { 
-            display: grid; grid-template-columns: 46px minmax(0,1fr) auto; align-items: center; gap: 14px; 
-            padding: 12px; background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; color: #fff; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; position: relative; overflow: hidden;
+        .brand {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #60a5fa; /* Light blue brand text */
         }
-        .channel-card:hover { 
-            background: rgba(255,255,255,0.08); border-color: rgba(11,132,255,.4); 
-            transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
-        }
-        .channel-card.active { 
-            background: linear-gradient(90deg, rgba(11, 132, 255, 0.15), rgba(11, 132, 255, 0.05)); 
-            border-color: var(--brand); box-shadow: inset 4px 0 0 var(--brand), 0 8px 25px rgba(11,132,255,0.25); 
-            transform: translateX(4px); 
-        }
-        .channel-logo { width: 48px; height: 42px; border-radius: 6px; background: #fff; display: flex; align-items: center; justify-content: center; padding: 3px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .channel-logo img { max-width: 100%; max-height: 100%; border-radius: 4px; object-fit: contain; }
-        .channel-name { font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.3px; }
-        .channel-stat { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #d9edff; background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 6px; margin-top: 6px; font-weight: 700; border: 1px solid rgba(255,255,255,0.05); }
-        .channel-stat.live { background: rgba(34,197,94,0.15); color: #dfffea; border-color: rgba(34,197,94,0.3); }
 
-        /* Developer Footer */
-        .dev-footer {
-            grid-area: footer;
+        .brand img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* --- Channel List --- */
+        .channel-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Custom Scrollbar for Sidebar */
+        .channel-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .channel-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .channel-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .channel-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- Channel Item (Matches Screenshot) --- */
+        .channel-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-item);
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            gap: 12px;
+        }
+
+        .channel-item:hover {
+            background-color: var(--bg-item-hover);
+        }
+
+        /* Active State (Green glowing outline from screenshot) */
+        .channel-item.active {
+            border-color: var(--border-active);
+            box-shadow: 0 0 12px var(--glow-active);
+            background-color: var(--bg-item-hover);
+        }
+
+        .ch-num {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            min-width: 28px;
             text-align: center;
-            padding: 24px 0;
-            margin-top: 10px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .dev-footer p {
-            margin: 0; color: #9aacbf; font-size: 14px; font-weight: 800; letter-spacing: 0.5px;
-        }
-        .dev-name {
-            color: #fff; font-weight: 900; 
-            text-shadow: 0 0 15px rgba(11,132,255,0.6);
-            transition: 0.3s;
-        }
-        .dev-name:hover { text-shadow: 0 0 25px rgba(11,132,255,0.9); }
-
-        @media(max-width: 1100px) {
-            .page { grid-template-columns: 280px 1fr; grid-template-areas: 'score score' 'servers player' 'servers info' 'footer footer'; }
-        }
-        @media(max-width: 900px) {
-            .page { display: flex; flex-direction: column; padding: 12px; gap: 12px; }
-            .quick-switch { height: 500px; position: static; }
-            .player-bar { grid-template-columns: 1fr; }
-            .bar-actions { justify-content: space-between; }
-            .action-btn { flex: 1; justify-content: center; padding: 0 5px; }
-            .mlbd-scoreboard { padding: 14px; gap: 10px; grid-template-columns: 1fr; text-align: center; }
-            .score-team { justify-content: center; font-size: 18px; }
-            .score-team-right { flex-direction: row-reverse; }
-            .score-team img { width: 40px; height: 40px; }
-            .score-live { justify-self: center; margin: 0 auto; }
         }
 
-        /* Toast UI */
-        .toast { position: fixed; bottom: 20px; right: 20px; background: rgba(8, 19, 33, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 14px 24px; border-radius: 8px; font-weight: 800; font-size: 14px; z-index: 9999; transform: translateY(100px); opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 15px 35px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 10px; }
-        .toast.show { transform: translateY(0); opacity: 1; }
-        .toast i { color: var(--brand); font-size: 16px; }
+        /* Mimicking the screenshot where some numbers have blue backgrounds and others dark */
+        .num-dark { background-color: var(--num-bg-dark); }
+        .num-blue { background-color: var(--num-bg-blue); }
+
+        .ch-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            object-fit: contain;
+            background-color: #fff; /* White background for logos */
+            padding: 2px;
+        }
+
+        .ch-name {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        /* --- Player Area --- */
+        .player-area {
+            flex: 1;
+            position: relative;
+            background-color: var(--bg-player);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            outline: none;
+            object-fit: contain;
+        }
+
+        /* --- Loader (Matches the dark ring from the screenshot) --- */
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 5px solid #1f2937; /* Dark gray ring */
+            border-top: 5px solid #94a3b8; /* Light gray spinner */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+            z-index: 20;
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column-reverse;
+            }
+            .sidebar {
+                width: 100%;
+                height: 50vh;
+                border-right: none;
+                border-top: 1px solid #111;
+            }
+            .player-area {
+                height: 50vh;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="page">
-
-    <!-- Topbar Scoreboard -->
-    <header class="topbar mlbd-scoreboard">
-        <div class="score-team score-team-left">
-            <img src="https://flagcdn.com/qa.svg" alt="Qatar">
-            <strong>Qatar</strong>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="brand">
+            <!-- Generic brand logo matching the blue tone -->
+            <img src="https://ui-avatars.com/api/?name=ATV&background=1d4ed8&color=fff" alt="Ariful TV Logo">
+            Ariful TV
         </div>
-        <div class="score-center">
-            <div class="score-live"><span></span> LIVE NOW</div>
-            <div class="score-title">FIFA World Cup 2026 • Group B</div>
+        <div class="channel-list" id="channelList">
+            <!-- Channels will be injected here by Javascript -->
         </div>
-        <div class="score-team score-team-right">
-            <strong>Switzerland</strong>
-            <img src="https://flagcdn.com/ch.svg" alt="Switzerland">
-        </div>
-    </header>
+    </div>
 
-    <!-- Sidebar Servers -->
-    <section class="quick-switch" id="channelSection">
-        <div class="switch-head">
-            <div class="switch-title">Channels</div>
-            <div class="switch-count" id="channel-count" style="font-size: 13px; color: var(--muted); font-weight: 800; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px;">Loading...</div>
-        </div>
-        <div class="channel-tools">
-            <div class="search-box">
-                <input type="text" id="channelSearch" placeholder="Search channels..." autocomplete="off">
-            </div>
-        </div>
-        <div class="channel-strip" id="channelStrip">
-            <!-- Channels dynamically injected here -->
-        </div>
-    </section>
+    <!-- Player Area -->
+    <div class="player-area">
+        <video id="videoPlayer" controls autoplay playsinline></video>
+        <div class="loader" id="playerLoader"></div>
+    </div>
 
-    <!-- Main Player -->
-    <section class="player-card" id="playerCard">
-        <div class="player-wrap" id="videoContainer">
-            <!-- Video element intentionally has controls enabled for mobile fallback -->
-            <video id="liveVideo" controls playsinline></video>
-        </div>
-        <div class="player-bar">
-            <div class="now-playing-switch">
-                <div class="bar-channel-picker-btn">
-                    <span class="bar-channel-logo flex items-center justify-center bg-white rounded h-8 w-10 overflow-hidden" id="active-logo"><i class="fa fa-tv text-slate-800"></i></span>
-                    <span class="channel-name flex-1 truncate" id="active-name">Select a Channel</span>
-                </div>
-            </div>
-            <div class="bar-actions">
-                <button type="button" class="action-btn primary" id="playBtn" onclick="togglePlay()"><i class="fa fa-play"></i> Play</button>
-                <button type="button" class="action-btn" id="muteBtn" onclick="toggleMute()"><i class="fa fa-volume-up"></i> Sound</button>
-                <button type="button" class="action-btn" id="fullscreenBtn" onclick="toggleFullscreen()"><i class="fa fa-expand"></i> Fullscreen</button>
-            </div>
-        </div>
-    </section>
+    <!-- HLS.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 
-    <!-- Developer Footer Credit -->
-    <footer class="dev-footer">
-        <p>
-            <i class="fa fa-code" style="color: var(--brand); margin-right: 6px;"></i> 
-            Developed by <span class="dev-name">Md Sabbir</span>
-        </p>
-    </footer>
+    <script>
+        // Channel Data (Exactly matching the requested channels and order from the screenshot)
+        // Somoy TV uses your provided link. The rest use a reliable test stream for demonstration.
+        const channels = [
+            { 
+                id: 1, 
+                name: "Somoy TV", 
+                url: "https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8", 
+                logo: "https://stream.codecloud.bd/uploads/logos/logo_6a2a3badb5621.png", // Somoy TV logo
+                numClass: "num-dark" 
+            },
+            { 
+                id: 2, 
+                name: "TNT Sports", 
+                url: "https://d63fabad.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWVzX0ZJRkFQbHVzU3BhbmlzaF9ITFM/playlist.m3u8", // Fallback test stream
+                logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/TNT_Sports_Logo_2023.svg/512px-TNT_Sports_Logo_2023.svg.png", 
+                numClass: "num-dark" 
+            },
+            { 
+                id: 3, 
+                name: "Fifa Live", 
+                url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", 
+                logo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/FIFA_WorldCup_logo.svg", 
+                numClass: "num-blue" 
+            },
+            { 
+                id: 4, 
+                name: "Fifa Live 2", 
+                url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", 
+                logo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/FIFA_WorldCup_logo.svg", 
+                numClass: "num-blue" 
+            },
+            { 
+                id: 5, 
+                name: "Bein Sports 1", 
+                url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", 
+                logo: "https://upload.wikimedia.org/wikipedia/commons/2/20/Bein_sport_logo.png", 
+                numClass: "num-blue" 
+            },
+            { 
+                id: 6, 
+                name: "TYC Sports", 
+                url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", 
+                logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/TyC_Sports_logo.svg/512px-TyC_Sports_logo.svg.png", 
+                numClass: "num-blue" 
+            },
+            { 
+                id: 7, 
+                name: "TYC Sports", 
+                url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", 
+                logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/TyC_Sports_logo.svg/512px-TyC_Sports_logo.svg.png", 
+                numClass: "num-blue" 
+            }
+        ];
 
-</div>
+        const channelListEl = document.getElementById('channelList');
+        const video = document.getElementById('videoPlayer');
+        const loader = document.getElementById('playerLoader');
+        let hls = null;
+        let currentChannelId = null;
 
-<div class="toast" id="toastBox"><i class="fa fa-info-circle"></i> <span id="toastText">Notification</span></div>
-
-<!-- Required Libraries -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-
-<script>
-    // Master Channel Database (Brazil Vs Morocco [Server 3] Removed)
-    window.masterChannels = [
-        { id: 'brazil-vs-morocco-12446', title: 'Brazil Vs Morocco', type: 'hls', url: 'https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/Caze_TV.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_d00b8c2ec0f7deea.jpeg' },
-        { id: 'brazil-vs-morocco-server-2-12479', title: 'Brazil Vs Morocco [Server 2]', type: 'hls', url: 'https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/1080p-vtt/index.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_f6fd06d0c8ae765e.jpeg' },
-        { id: 'brazil-vs-morocco-server-4-12480', title: 'Brazil Vs Morocco [Server 4]', type: 'hls', url: 'https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/Caze_TV.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_3bf068dcff1afe86.jpeg' },
-        { id: 'win-sports-fifa-worldcup-12471', title: 'Win Sports [FIFA Worldcup]', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_ed51b17683c8a08d.png' },
-        { id: 'bein-sports-1-12358', title: 'Bein Sports 1', type: 'hls', url: 'https://andro.226503.xyz/checklist/androstreamlivebs1.m3u8', category: 'FIFA World Cup', logo: 'https://imglink.cc/cdn/kIiut6WBq0.jpg' },
-        { id: 'ptv-sports-hd-fifa-world-cup-fhd-12477', title: 'PTV Sports HD (FIFA World Cup] FHD', type: 'hls', url: 'https://cdn10.zohanayaan.com:1686/hls/ptvpk.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_c87af38fabcdc1f5.jpg' },
-        { id: 't-sports-hd-server-3-12466', title: 'T Sports HD Server 3', type: 'hls', url: 'https://live1.asimxtech.online/tsports/index.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_381f447b9339f0a5.png' },
-        { id: 'caze-tv-brasil-fifa-world-cup-12305', title: 'Caze Tv Brasil [FIFA World Cup]', type: 'hls', url: 'https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/1080p-vtt/index.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2a39c4ac184.png' },
-        { id: 'caze-tv-server-2-fifa-world-cup-12306', title: 'Caze Tv Server 2 [FIFA World Cup]', type: 'hls', url: 'https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/Caze_TV.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2a3938aca1c.png' },
-        { id: 'ptv-sports-hd-fifa-12370', title: 'PTV Sports HD (FIFA)', type: 'hls', url: 'https://live6.asimxtech.online/ptv/index.m3u8', category: 'FIFA World Cup', logo: 'https://imglink.cc/cdn/wHhztDDZrU.png' },
-        { id: 'bein-sports-xtra-12307', title: 'Bein Sports XTRA', type: 'hls', url: 'https://amg01334-amg01334c2-freelivesports-emea-6791.playouts.now.amagi.tv/playlist/amg01334-beinxtra-beinxtrausapp-freelivesportsemea/playlist.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2a39fb56eec.jpeg' },
-        { id: 'bein-sports-xtra-12357', title: 'beIN Sports Xtra', type: 'hls', url: 'https://bein-esp-xumo.amagi.tv/playlistR720P.m3u8', category: 'FIFA World Cup', logo: 'https://imglink.cc/cdn/kIiut6WBq0.jpg' },
-        { id: 'bein-sports-2-12359', title: 'Bein Sports 2', type: 'hls', url: 'https://andro.226503.xyz/checklist/androstreamlivebs2.m3u8', category: 'FIFA World Cup', logo: 'https://imglink.cc/cdn/kIiut6WBq0.jpg' },
-        { id: 'bein-sports-3-12360', title: 'Bein Sports 3', type: 'hls', url: 'https://andro.226503.xyz/checklist/androstreamlivebs3.m3u8', category: 'FIFA World Cup', logo: 'https://imglink.cc/cdn/kIiut6WBq0.jpg' },
-        { id: 'bein-sports-4-12356', title: 'Bein Sports 4', type: 'hls', url: 'https://bein-esp-xumo.amagi.tv/playlistR1080p.m3u8', category: 'FIFA World Cup', logo: 'https://imglink.cc/cdn/kIiut6WBq0.jpg' },
-        { id: 'bein-sports-4-server-2-12361', title: 'Bein Sports 4 Server 2', type: 'hls', url: 'https://andro.226503.xyz/checklist/androstreamlivebs4.m3u8', category: 'FIFA World Cup', logo: 'https://imglink.cc/cdn/kIiut6WBq0.jpg' },
-        { id: 'tyc-sports-argentina-12324', title: 'Tyc Sports 🇦🇷 Argentina', type: 'hls', url: 'https://amg26268-amg26268c14-freelivesports-emea-10267.playouts.now.amagi.tv/ts-us-e2-n2/playlist/amg26268-sportsstudio-tycsports-freelivesportsemea/playlist.m3u8', category: 'FIFA World Cup', logo: 'https://imglink.cc/cdn/1oSRQnyUqK.jpg' },
-        { id: 'las-estrellas-mexico-fifa-world-cup-12470', title: 'Las Estrellas Mexico [FIFA World Cup]', type: 'hls', url: 'https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_3731aaa97b88a0af.png' },
-        { id: 'tnt-sports-premium-12467', title: 'TNT Sports Premium', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/30/index.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_2322f46dbf02dd27.jpeg' },
-        { id: 'fifa-worldcup-bangla-12463', title: 'FIFA Worldcup Bangla', type: 'dash', url: 'https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebanglacinema/default/manifest.mpd', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_96087dbbd66a4f6e.png' },
-        { id: 'fifa-spain-12309', title: 'FIFA+ Spain', type: 'hls', url: 'https://d63fabad.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWVzX0ZJRkFQbHVzU3BhbmlzaF9ITFM/playlist.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2a3add7c408.png' },
-        { id: 'espn-2-12311', title: 'ESPN 2', type: 'hls', url: 'https://tv.topmediatv.net:25463/live/TopMediaWeb/bOteTR8ED1/108.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2a3b50397da.jpg' },
-        { id: '2-tv-sports-fifa-worldcup-server-2-12460', title: '2 Tv Sports FIFA Worldcup Server 2', type: 'hls', url: 'https://tv.cdn.xsg.ge/gpb-2tv/index.m3u8', category: 'Sports', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2bada099b77.png' },
-        { id: '2-tv-sports-fifa-worldcup-12459', title: '2 Tv Sports FIFA Worldcup', type: 'hls', url: 'https://tv.cdn.xsg.ge/gpb-2tv/tracks-v1a1/mono.ts.m3u8', category: 'Sports', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2bad8342c69.png' },
-        { id: 'fox-sports-2-fifa-12323', title: 'Fox Sports 2 - (FIFA)', type: 'hls', url: 'https://tvsen7.aynaott.com/foxsports2/index.m3u8?e=1779283790&u=78be6644-0a65-48ec-81a4-089ac65a2619&token=cbb7f40b4af7be51a91e0629a5ac7238', category: 'Sports', logo: 'https://imglink.cc/cdn/o5BoWU_BEz.png' },
-        { id: 'fifa-plus-b-12317', title: 'FIFA Plus B 🏆', type: 'hls', url: 'https://37b4c228.wurl.com/manifest/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWZyX0ZJRkFQbHVzRnJlbmNoX0hMUw/6f5437c5-e015-4754-8476-c8c6d27d3a55/1.m3u8', category: 'Sports', logo: 'https://i.ibb.co.com/vnbkF0r/fifa-world-cup-2026-logo-png-seeklogo-665644.png' },
-        { id: 'boishakhi-tv-12417', title: 'Boishakhi TV', type: 'hls', url: 'https://tvsen6.aynaott.com/boishakhitv/index.m3u8?e=1779283755&u=78be6644-0a65-48ec-81a4-089ac65a2619&token=f3f4ec98ffbd9567c21e8b2ee98e32d5', category: 'Bangladesh', logo: 'https://i.ibb.co.com/sptqqqj9/Boishakhi-TV.png' },
-        { id: 'fifa-plus-france-12319', title: 'FIFA Plus 🇫🇷 France', type: 'hls', url: 'https://37b4c228.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWZyX0ZJRkFQbHVzRnJlbmNoX0hMUw/playlist.m3u8', category: 'Sports', logo: 'https://i.ibb.co.com/vnbkF0r/fifa-world-cup-2026-logo-png-seeklogo-665644.png' },
-        { id: 'fifa-plus-usa-12322', title: 'FIFA Plus 🇺🇸 USA', type: 'hls', url: 'https://d2w9q46ikgrcwx.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-of5cbk3sav3w5/v1/sysdata_s_p_a_fifa_7/samsungheadend_us/latest/main/hls/playlist.m3u8', category: 'Sports', logo: 'https://i.ibb.co.com/vnbkF0r/fifa-world-cup-2026-logo-png-seeklogo-665644.png' },
-        { id: 'fifa-english-12308', title: 'FIFA+ English', type: 'hls', url: 'https://a62dad94.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0ZJRkFQbHVzRW5nbGlzaF9ITFM/playlist.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2a3a4c03f4a.png' },
-        { id: 'fifa-plus-argentina-12318', title: 'FIFA Plus 🇦🇷 Argentina', type: 'hls', url: 'https://6c849fb3.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/TEctbXhfRklGQVBsdXNTcGFuaXNoLTFfSExT/playlist.m3u8', category: 'Sports', logo: 'https://i.ibb.co.com/vnbkF0r/fifa-world-cup-2026-logo-png-seeklogo-665644.png' },
-        { id: 'fifa-plus-germany-12320', title: 'FIFA Plus 🇩🇪 Germany', type: 'hls', url: 'https://4397879b.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWRlX0ZJRkFQbHVzR2VybWFuX0hMUw/playlist.m3u8', category: 'Sports', logo: 'https://i.ibb.co.com/vnbkF0r/fifa-world-cup-2026-logo-png-seeklogo-665644.png' },
-        { id: 'fifa-brazil-12310', title: 'FIFA+ Brazil', type: 'hls', url: 'https://e3be9ac5.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/TEctYnJfRklGQVBsdXNQb3J0dWd1ZXNlX0hMUw/playlist.m3u8', category: 'FIFA World Cup', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2a3b125db37.png' },
-        { id: 'fifa-plus-itali-12321', title: 'FIFA Plus 🇮🇪 Itali', type: 'hls', url: 'https://5d95f7d7.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWl0X0ZJRkFQbHVzSXRhbGlhbl9ITFM/playlist.m3u8', category: 'Sports', logo: 'https://i.ibb.co.com/vnbkF0r/fifa-world-cup-2026-logo-png-seeklogo-665644.png' },
-        { id: 'ptv-sports-12313', title: 'Ptv Sports', type: 'hls', url: 'https://tvsen5.aynaott.com/PtvSports/index.m3u8?e=1779283784&u=78be6644-0a65-48ec-81a4-089ac65a2619&token=db1789e36c278bf538489fac263e0ffb', category: 'Pakistan', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2a3bdf4d3da.jpg' },
-        { id: 'channel-1-tv-12420', title: 'Channel 1 TV', type: 'hls', url: 'https://app24.jagobd.com.bd/c3VydmVyX8RpbEU9Mi8xNy8yMFDEEHGcfRgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcEdsEfeDeKiNkVN3PTOmdFseWRtaW51aiPhnPTI2/channel1bd.stream/tracks-v1a1/mono.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/N6HbH5rH/Channel-One-TV.png' },
-        { id: 'euro-tv-12364', title: 'Euro TV', type: 'hls', url: 'https://stream.ottplus.bd/live/euro_sports_hd_abr/live/euro_sports_hd/chunks.m3u8', category: 'Sports', logo: 'https://imglink.cc/cdn/SZphbKsSMx.png' },
-        { id: 'star-jalsha-12374', title: 'Star Jalsha', type: 'hls', url: 'https://yupptvcatchupire.yuppcdn.net/preview/starjalsha/1800.m3u8', category: 'Entertainment', logo: 'https://imglink.cc/cdn/3TXPVSGzx5.png' },
-        { id: 'star-sports-1-b-12366', title: 'Star Sports 1 B', type: 'hls', url: 'https://tvsen7.aynaott.com/sspts1/index.m3u8', category: 'Sports', logo: 'https://imglink.cc/cdn/va7WOdXDQC.jpg' },
-        { id: 'star-sports-1-12365', title: 'Star Sports 1', type: 'hls', url: 'https://tvsen7.aynaott.com/sspts1/tracks-v1a1/mono.ts.m3u8', category: 'Sports', logo: 'https://imglink.cc/cdn/va7WOdXDQC.jpg' },
-        { id: 'south-india-movie-12386', title: 'South India Movie', type: 'hls', url: 'https://live20.bozztv.com/giatvplayout7/giatv-209593/tracks-v1a1/mono.ts.m3u8', category: 'Movies', logo: 'https://imglink.cc/cdn/cScI5tEUjV.png' },
-        { id: 'cricket-gold-12367', title: 'Cricket Gold', type: 'hls', url: 'https://streams2.sofast.tv/ptnr-yupptv/title-cricketgold/v1/manifest/611d79b11b77e2f571934fd80ca1413453772ac7/b2048bb8-1686-4432-aa50-647245383e0c/bfc6a36e-c250-4afe-b6c9-2bc57855bb7d/4.m3u8', category: 'Sports', logo: 'https://imglink.cc/cdn/HMfImxTUXS.jpg' },
-        { id: 'asports-12369', title: 'ASports', type: 'hls', url: 'https://tvsen6.aynaott.com/asports/index.m3u8', category: 'Sports', logo: 'https://imglink.cc/cdn/d4W6mvjalX.png' },
-        { id: 'goldmines-movies-12382', title: 'Goldmines Movies', type: 'hls', url: 'https://cdn-2.pishow.tv/live/1461/master.m3u8', category: 'Movies', logo: 'https://imglink.cc/cdn/E86bN6IAxl.jpg' },
-        { id: 'g-series-drama-12379', title: 'G Series Drama', type: 'hls', url: 'https://vods2.aynaott.com/gseriesDrama/tracks-v1a1/mono.ts.m3u8', category: 'Entertainment', logo: 'https://imglink.cc/cdn/1_dUKmt1Oe.png' },
-        { id: 'goldmines-12381', title: 'Goldmines', type: 'hls', url: 'https://cdn-2.pishow.tv/live/1459/master.m3u8', category: 'Movies', logo: 'https://imglink.cc/cdn/E86bN6IAxl.jpg' },
-        { id: 'goldmines-bollywood-12383', title: 'Goldmines Bollywood', type: 'hls', url: 'https://tvsen6.aynaott.com/GoldminesBollywood/index.m3u8', category: 'Movies', logo: 'https://imglink.cc/cdn/E86bN6IAxl.jpg' },
-        { id: 'srk-tv-12380', title: 'SRK Tv', type: 'hls', url: 'https://srknowapp.ncare.live/srktvhlswodrm/srktv.stream/playlist.m3u8', category: 'Entertainment', logo: 'https://imglink.cc/cdn/uZtiXpPz29.png' },
-        { id: 'jalsha-movies-12384', title: 'Jalsha Movies', type: 'hls', url: 'http://198.195.239.50:8095/JalshaMovies/tracks-v1a1/mono.m3u8', category: 'Movies', logo: 'https://imglink.cc/cdn/hEzUhoTW3x.jpg' },
-        { id: 'b4u-movies-12387', title: 'B4U Movies', type: 'hls', url: 'https://amg00877-b4unew-amg00877c2-xiaomi-in-5489.playouts.now.amagi.tv/playlist.m3u8', category: 'Movies', logo: 'https://imglink.cc/cdn/cScI5tEUjV.png' },
-        { id: 'action-hollywood-12388', title: 'Action Hollywood', type: 'hls', url: 'https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg01076-lightningintern-actionhollywood-samsungnz/playlist.m3u8', category: 'Movies', logo: 'https://imglink.cc/cdn/cScI5tEUjV.png' },
-        { id: 'song-max-12389', title: 'Song Max', type: 'hls', url: 'https://edge2.roarzone.net:8447/roarzone/edge3/sony_max_hd/index.m3u8?token=0acbc3381f074f74cd7db448c566c55fe7592a3c-efc9e16855524918b6a0e514aaddd012-1781061322-1781050522', category: 'Movies', logo: 'https://imglink.cc/cdn/4mRBs1A-x_.png' },
-        { id: 'sony-max-2-12390', title: 'Sony Max 2', type: 'hls', url: 'https://edge2.roarzone.net:8447/roarzone/edge3/sonymax_2/index.m3u8?token=1ae6cc9578f7e8a9fbeb42b32a9ea6e19c246ec6-aa37a828978035cc1450f0721cf5f067-1781061322-1781050522', category: 'Movies', logo: 'https://imglink.cc/cdn/4mRBs1A-x_.png' },
-        { id: 'star-gold-12391', title: 'Star Gold', type: 'hls', url: 'http://198.195.239.50:8095/StarGold/index.m3u8', category: 'Movies', logo: 'https://imglink.cc/cdn/Nkj7hqlPz-.jpg' },
-        { id: '9x-tashan-12392', title: '9X Tashan', type: 'hls', url: 'https://wiselp.wiseplayout.com/9X_Tashan/master.m3u8', category: 'Music', logo: 'https://imglink.cc/cdn/IYDn_LwwiV.png' },
-        { id: '9x-jalwa-12393', title: '9X Jalwa', type: 'hls', url: 'https://wiselp.wiseplayout.com/9X_Jalwa/master.m3u8', category: 'Music', logo: 'https://imglink.cc/cdn/IYDn_LwwiV.png' },
-        { id: '9x-jhakaas-12394', title: '9X Jhakaas', type: 'hls', url: 'https://wiselp.wiseplayout.com/9X_Jhakaas/master.m3u8', category: 'Music', logo: 'https://imglink.cc/cdn/IYDn_LwwiV.png' },
-        { id: 'channel-9-hd-12422', title: 'Channel 9 HD', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1729/output/1729-audio_113592_eng=113200-video=1181200.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/Xxrdnxkp/Channel9-HD.png' },
-        { id: 'sangeet-bangla-12395', title: 'Sangeet Bangla', type: 'hls', url: 'https://cdn-4.pishow.tv/live/1143/master.m3u8', category: 'Music', logo: 'https://imglink.cc/cdn/LmVOSdl3ku.png' },
-        { id: 'party-universe-b-12399', title: 'Party Universe B', type: 'hls', url: 'https://nomawnoijl.gpcdn.net/akash/partyuniverse/playlist.m3u8', category: 'Music', logo: 'https://imglink.cc/cdn/IYDn_LwwiV.png' },
-        { id: 'albania-music-12397', title: 'Albania Music', type: 'hls', url: 'https://albportal.net/albkanalemusic.m3u8', category: 'Music', logo: 'https://imglink.cc/cdn/IYDn_LwwiV.png' },
-        { id: 'bengali-beat-12396', title: 'Bengali Beat', type: 'hls', url: 'https://tplay.live/originals/bengali-beats/index.m3u8', category: 'Music', logo: 'https://imglink.cc/cdn/IYDn_LwwiV.png' },
-        { id: 'party-universe-12398', title: 'Party Universe', type: 'hls', url: 'https://nomawnoijl.gpcdn.net/akash/partyuniverse/chunks.m3u8', category: 'Music', logo: 'https://imglink.cc/cdn/IYDn_LwwiV.png' },
-        { id: 'hindi-classic-24-12385', title: 'Hindi Classic 24', type: 'hls', url: 'https://vods2.aynaott.com/hindimovies/index.m3u8', category: 'Movies', logo: 'https://imglink.cc/cdn/cScI5tEUjV.png' },
-        { id: 'motu-patlu-12400', title: 'Motu Patlu', type: 'hls', url: 'https://live20.bozztv.com/giatvplayout7/giatv-209622/tracks-v1a1/mono.ts.m3u8', category: 'Cartoon', logo: 'https://imglink.cc/cdn/TxPUulKGQh.jpg' },
-        { id: 'bantul-the-great-12402', title: 'Bantul The Great', type: 'hls', url: 'https://live20.bozztv.com/giatvplayout7/giatv-209869/tracks-v1a1/mono.ts.m3u8', category: 'Cartoon', logo: 'https://imglink.cc/cdn/_OIh6UYTpa.jpg' },
-        { id: 'nick-bangla-12403', title: 'Nick Bangla', type: 'hls', url: 'http://103.204.43.87:8080/live/1/1/275.m3u8', category: 'Cartoon', logo: 'https://imglink.cc/cdn/XRDlkFnTFb.jpg' },
-        { id: 'sonic-bangla-12404', title: 'Sonic Bangla', type: 'hls', url: 'http://103.204.43.87:8080/live/1/1/274.m3u8', category: 'Cartoon', logo: 'https://imglink.cc/cdn/G2BnUli8dP.png' },
-        { id: 'doraemon-tv-12405', title: 'Doraemon TV', type: 'hls', url: 'https://live20.bozztv.com/giatvplayout7/giatv-209902/tracks-v1a1/mono.ts.m3u8', category: 'Cartoon', logo: 'https://imglink.cc/cdn/rmNeL8f6NR.png' },
-        { id: 'gopal-bhar-tv-12409', title: 'Gopal Bhar TV', type: 'hls', url: 'https://live20.bozztv.com/giatvplayout7/giatv-209611/tracks-v1a1/mono.ts.m3u8', category: 'Cartoon', logo: 'https://i.ibb.co.com/5xSF5mzh/Gopal-Bhar-animated-TV-series-title-card.jpg' },
-        { id: 'oggy-and-the-cockroaches-12406', title: 'Oggy and the Cockroaches', type: 'hls', url: 'https://live20.bozztv.com/giatvplayout7/giatv-210728/tracks-v1a1/mono.ts.m3u8', category: 'Cartoon', logo: 'https://imglink.cc/cdn/cZxNWhHkaZ.jpg' },
-        { id: 'mr-bean-animated-12407', title: 'Mr Bean Animated', type: 'hls', url: 'https://amg00627-amg00627c29-rakuten-it-3989.playouts.now.amagi.tv/playlist/amg00627-banijayfast-mrbeanitcc-rakutenit/playlist.m3u8', category: 'Cartoon', logo: 'https://i.ibb.co.com/XfqV4B56/png-transparent-mr-bean-illustration-youtube-coloring-book-character-cartoon-mr-bean-television-chil.png' },
-        { id: 'channel-24-12421', title: 'Channel 24', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/1703-audio_113332_eng=113200-video=2202800.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/v65cfQ96/Channel-24.png' },
-        { id: 'duronto-live-12410', title: 'Duronto Live', type: 'hls', url: 'https://tvsen6.aynaott.com/durontotv-live/index.m3u8?e=1779283757&u=78be6644-0a65-48ec-81a4-089ac65a2619&token=3da514e08a15c80daed60a18b3f423fa', category: 'Cartoon', logo: 'https://i.ibb.co.com/Ld3Yw0PH/Duronto-TV.png' },
-        { id: 'tom-jerry-tv-12401', title: 'Tom & Jerry TV', type: 'hls', url: 'https://live20.bozztv.com/giatvplayout7/giatv-208314/tracks-v1a1/mono.ts.m3u8', category: 'Cartoon', logo: 'https://imglink.cc/cdn/YkXRQgC4-_.jpg' },
-        { id: 'cartoon-network-12408', title: 'Cartoon Network', type: 'hls', url: 'https://tvsen5.aynaott.com/cartoonnetwork/tracks-v1a1/mono.ts.m3u8', category: 'Cartoon', logo: 'https://imglink.cc/cdn/48br-Lpr61.png' },
-        { id: 'bangla-tv-12418', title: 'Bangla Tv', type: 'hls', url: 'https://tvsen6.aynaott.com/banglatv/index.m3u8?e=1779283758&u=78be6644-0a65-48ec-81a4-089ac65a2619&token=f3e9e2737e35147900c0f4add619ead6', category: 'Bangladesh', logo: 'https://imglink.cc/cdn/YQ8D9Wf0IT.png' },
-        { id: 'channel-i-12419', title: 'Channel I', type: 'hls', url: 'https://tvsen6.aynaott.com/channeli/index.m3u8?e=1779283749&u=78be6644-0a65-48ec-81a4-089ac65a2619&token=1d2782c406bc6c9f853716c3dc41a439', category: 'Bangladesh', logo: 'https://imglink.cc/cdn/H038J5LwdN.png' },
-        { id: 'channel-s-tv-12423', title: 'Channel S TV', type: 'hls', url: 'https://app.ncare.live/live-orgin/channels.stream/live-orgin/channels.stream/chunks.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/Vp2HKT0s/Channel-S-TV.png' },
-        { id: 'dbc-news-12424', title: 'DBC News', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1728/output/index.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/TMKLMXs9/DBC-News.png' },
-        { id: 'deepto-tv-12425', title: 'Deepto TV', type: 'hls', url: 'https://byphdgllyk.gpcdn.net/hls/deeptotv/0_1/index.m3u8', category: 'Bangladesh', logo: 'https://imglink.cc/cdn/2ODX-FAGY4.png' },
-        { id: 'desh-tv-12426', title: 'Desh TV', type: 'hls', url: 'https://tvsen6.aynaott.com/deshtv/tracks-v1a1/mono.ts.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/fVH9h8Tk/Desh-TV.png' },
-        { id: 'somoy-tv-12312', title: 'Somoy Tv', type: 'hls', url: 'https://sm-monirul.top/toffee/play/somoy_tv.m3u8', category: 'Bangladesh', logo: 'https://stream.codecloud.bd/uploads/logos/logo_6a2a3badb5621.png' },
-        { id: 'ekhon-tv-12427', title: 'Ekhon TV', type: 'hls', url: 'https://tvsen6.aynaott.com/ekhontv/tracks-v1a1/mono.ts.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/YrDVpDt/Ekhon-Tv.png' },
-        { id: 'ekattor-tv-hd-12428', title: 'Ekattor TV HD', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1705/output/1705.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/DPZrfqzr/Ekattor-TV-HD.png' },
-        { id: 'ekushe-tv-12429', title: 'Ekushe TV', type: 'hls', url: 'https://tvsen6.aynaott.com/etv/tracks-v1a1/mono.ts.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/Myscx0rx/Ekushe-TV.png' },
-        { id: 'global-tv-12430', title: 'Global TV', type: 'hls', url: 'https://app24.jagobd.com.bd/c3VydmVyX8RpbEU9Mi8xNy8yMFDEEHGcfRgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcEdsEfeDeKiNkVN3PTOmdFseWRtaW51aiPhnPTI2/Global-tv.stream/tracks-v1a1/mono.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/Q7Q7X64N/Global-TV.png' },
-        { id: 'star-news-12443', title: 'Star News', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1710/output/1710-audio_113402_eng=113200-video=1181200.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/cXTjmmtP/Star-News.png' },
-        { id: 'gtv-12431', title: 'GTV', type: 'hls', url: 'https://app24.jagobd.com.bd/c3VydmVyX8RpbEU9Mi8xNy8yMFDEEHGcfRgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcEdsEfeDeKiNkVN3PTOmdFseWRtaW51aiPhnPTI2/gazibdz.stream/tracks-v1a1/mono.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/cc5rftrN/Gazi-TV.png' },
-        { id: 'jago-news-24-12433', title: 'Jago News 24', type: 'hls', url: 'https://app.ncare.live/live-orgin/jagonews24.stream/live-orgin/jagonews24.stream/chunks.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/KpRt3cT5/Jago-News-24.png' },
-        { id: 'independent-tv-12432', title: 'Independent TV', type: 'hls', url: 'https://tvsen6.aynaott.com/independenttv/tracks-v1a1/mono.ts.m3u8', category: 'Bangladesh', logo: 'https://e7.pngegg.com/pngimages/500/179/png-clipart-bangladesh-logo-independent-television-television-channel-bd-logo-television-text-thumbnail.png' },
-        { id: 'jamuna-tv-12434', title: 'Jamuna TV', type: 'hls', url: 'https://tvsen6.aynaott.com/jamunatv/index.m3u8?e=1779283771&u=78be6644-0a65-48ec-81a4-089ac65a2619&token=2592d440f00d65738bd7f6c5158ce486', category: 'Bangladesh', logo: 'https://www.jamuna.tv/uploads/settings/default_img_1.jpg' },
-        { id: 'maasranga-tv-12435', title: 'Maasranga TV', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1722/output/1722.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/S7c6STRZ/Maasranga-TV.png' },
-        { id: 'mohona-tv-12436', title: 'Mohona TV', type: 'hls', url: 'https://app24.jagobd.com.bd/c3VydmVyX8RpbEU9Mi8xNy8yMFDEEHGcfRgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcEdsEfeDeKiNkVN3PTOmdFseWRtaW51aiPhnPTI2/mohonatv.stream/tracks-v1a1/mono.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/Ndvm37Vr/Mohona-TV.png' },
-        { id: 'my-tv-12437', title: 'My Tv', type: 'hls', url: 'https://tvsen6.aynaott.com/mytv/index.m3u8?e=1779283760&u=78be6644-0a65-48ec-81a4-089ac65a2619&token=0a2ae0189a44e789d3fecffe5a474ec3', category: 'Bangladesh', logo: 'https://imglink.cc/cdn/7T2-k2SePa.png' },
-        { id: 'rtv-live-12442', title: 'RTV Live', type: 'hls', url: 'https://tvsen6.aynaott.com/rtv/tracks-v1a1/mono.ts.m3u8', category: 'Bangladesh', logo: 'https://imglink.cc/cdn/JZnibxXLfK.png' },
-        { id: 'nexus-tv-12439', title: 'Nexus TV', type: 'hls', url: 'https://tvsen6.aynaott.com/nexustv/tracks-v1a1/mono.ts.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/d0hw38JN/Nexus-TV.png' },
-        { id: 'thikana-12445', title: 'Thikana', type: 'hls', url: 'https://5dd3981940faa.streamlock.net:443/thikanatv/thikanatv/playlist.m3u8', category: 'Bangladesh', logo: 'https://imglink.cc/cdn/rw8iAU9ZcB.jpg' },
-        { id: 'adventure-earth-12451', title: 'Adventure Earth', type: 'hls', url: 'https://autentic-adventure-earth-1-eu.rakuten.wurl.tv/playlist.m3u8', category: 'Documentary', logo: 'https://imglink.cc/cdn/eEZmseF3Tb.jpg' },
-        { id: 'news-24-12440', title: 'News 24', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1708/output/index.m3u8', category: 'Bangladesh', logo: 'https://i.ibb.co.com/gLx9fX5N/News-24.png' },
-        { id: 'ntv-12441', title: 'NTV', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1716/output/1716-audio_113462_eng=113200-video=1181200.m3u8', category: 'Bangladesh', logo: 'https://imglink.cc/cdn/D8KxMc9soN.png' },
-        { id: 'bbc-earth-12452', title: 'BBC Earth', type: 'hls', url: 'https://amg00793-amg00793c6-xumo-us-2669.playouts.now.amagi.tv/BBCStudios-BBCEarthA-hls/playlist540p.m3u8', category: 'Documentary', logo: 'https://imglink.cc/cdn/eEZmseF3Tb.jpg' },
-        { id: 'sa-tv-12444', title: 'SA Tv', type: 'hls', url: 'https://tvsen6.aynaott.com/satv/index.m3u8?e=1779283757&u=78be6644-0a65-48ec-81a4-089ac65a2619&token=336f19de5e4aacae753d7524d86d1a89', category: 'Bangladesh', logo: 'https://imglink.cc/cdn/qx2W3uKGsz.png' },
-        { id: 'movie-bangla-12438', title: 'Movie Bangla', type: 'hls', url: 'http://rgkkw.live/live/1Aoen7elp5/IgMJ60tmAa/130714.ts', category: 'Bangladesh', logo: 'https://imglink.cc/cdn/B1Dn0E5UKs.png' },
-        { id: 'animal-planet-12454', title: 'Animal Planet', type: 'hls', url: 'https://tiger-hub.vercel.app@vodzong.mjunoon.tv:8087/streamtest/Animal-Planet-158-3/playlist.m3u8', category: 'Documentary', logo: 'https://imglink.cc/cdn/ebC033LNf2.png' },
-        { id: 'wild-earth-12453', title: 'Wild Earth', type: 'hls', url: 'https://wildearth-plex.amagi.tv/master.m3u8', category: 'Documentary', logo: 'https://imglink.cc/cdn/eEZmseF3Tb.jpg' }
-    ];
-
-    let currentActiveId = null;
-    let hlsInstance = null;
-    let dashInstance = null;
-    const video = document.getElementById('liveVideo');
-    const playBtn = document.getElementById('playBtn');
-    const muteBtn = document.getElementById('muteBtn');
-
-    function renderChannels(filterText = '') {
-        const strip = document.getElementById('channelStrip');
-        strip.innerHTML = '';
-        
-        let visibleCount = 0;
-        window.masterChannels.forEach((ch, index) => {
-            if (filterText && !ch.title.toLowerCase().includes(filterText.toLowerCase())) return;
+        function renderChannels() {
+            channelListEl.innerHTML = '';
             
-            const isActive = ch.id === currentActiveId;
-            const card = document.createElement('button');
-            card.className = `channel-card ${isActive ? 'active' : ''}`;
-            card.onclick = () => playStream(ch);
+            channels.forEach((channel) => {
+                const item = document.createElement('div');
+                // If it's the currently playing channel, add the 'active' class (Green border)
+                item.className = `channel-item ${channel.id === currentChannelId ? 'active' : ''}`;
+                
+                // Clicking the item plays the channel
+                item.onclick = () => playChannel(channel);
+
+                item.innerHTML = `
+                    <div class="ch-num ${channel.numClass}">${channel.id}.</div>
+                    <img src="${channel.logo}" alt="${channel.name}" class="ch-logo" onerror="this.src='https://placehold.co/32x32/ffffff/000000?text=TV'">
+                    <div class="ch-name">${channel.name}</div>
+                `;
+                
+                channelListEl.appendChild(item);
+            });
+        }
+
+        function playChannel(channel) {
+            currentChannelId = channel.id;
+            renderChannels(); // Re-render to update the green active border
             
-            card.innerHTML = `
-                <div class="channel-logo"><img src="${ch.logo}" onerror="this.style.display='none'"></div>
-                <div>
-                    <div class="channel-name">${ch.title}</div>
-                    <div class="channel-stat live"><i class="fa fa-circle"></i> ${(Math.random() * 50 + 1).toFixed(1)}K</div>
-                </div>
-            `;
-            strip.appendChild(card);
-            visibleCount++;
-        });
-        
-        document.getElementById('channel-count').textContent = `${visibleCount} Channels`;
-    }
+            // Show the loading spinner
+            loader.classList.add('active');
+            
+            // Stop and destroy previous HLS instance if it exists
+            if (hls) {
+                hls.destroy();
+                hls = null;
+            }
+            
+            // Pause current video and clear source
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
 
-    document.getElementById('channelSearch').addEventListener('input', (e) => {
-        renderChannels(e.target.value);
-    });
-
-    function playStream(channel) {
-        currentActiveId = channel.id;
-        renderChannels(document.getElementById('channelSearch').value);
-        
-        // Update Player Bar
-        document.getElementById('active-logo').innerHTML = `<img src="${channel.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">`;
-        document.getElementById('active-name').textContent = channel.title;
-
-        // SAFE TEARDOWN: Destroy engines
-        if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-        if (dashInstance) { dashInstance.reset(); dashInstance = null; }
-        
-        // SAFE RESET: Purge old source to prevent NotSupportedError
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-
-        const isDash = channel.type === 'dash' || channel.url.includes('.dash') || channel.url.includes('.mpd');
-        const isHls = channel.type === 'hls' || channel.url.includes('.m3u8');
-
-        try {
-            if (isDash && typeof dashjs !== 'undefined') {
-                dashInstance = dashjs.MediaPlayer().create();
-                dashInstance.initialize(video, channel.url, true);
-                
-                dashInstance.on(dashjs.MediaPlayer.events.ERROR, (e) => {
-                    console.warn("DASH Engine Warning:", e);
-                });
-                
-            } 
-            else if (isHls && Hls.isSupported()) {
-                hlsInstance = new Hls({
+            // Check if HLS.js is supported (Most Desktop browsers)
+            if (Hls.isSupported()) {
+                hls = new Hls({
                     enableWorker: true,
                     lowLatencyMode: true,
                 });
-                hlsInstance.loadSource(channel.url);
-                hlsInstance.attachMedia(video);
                 
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { 
+                hls.loadSource(channel.url);
+                hls.attachMedia(video);
+                
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
                     const playPromise = video.play();
-                    // Catch Unhandled Rejection to prevent console crash
                     if (playPromise !== undefined) {
-                        playPromise.catch(e => {
-                            console.warn("Autoplay block (HLS). Setting muted:", e);
+                        playPromise.catch(error => {
+                            // Autoplay block handler
+                            console.warn("Autoplay prevented. Muting to allow playback.");
                             video.muted = true;
-                            video.play().catch(err => console.log("Final play block:", err));
+                            video.play().catch(e => console.error("Final play error:", e));
                         });
                     }
                 });
-                
-                hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+
+                // Error handling
+                hls.on(Hls.Events.ERROR, function (event, data) {
                     if (data.fatal) {
-                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                            hlsInstance.startLoad();
-                        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                            hlsInstance.recoverMediaError();
-                        } else {
-                            hlsInstance.destroy();
-                            showToast("Fatal stream error. Please select another channel.");
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.warn("Network error, trying to recover...");
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.warn("Media error, trying to recover...");
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                hls.destroy();
+                                loader.classList.remove('active');
+                                alert("Fatal stream error occurred.");
+                                break;
                         }
                     }
                 });
             } 
-            else {
-                // Fallback for Native HLS (Safari/iOS) or Direct MP4 files
+            // Fallback for Native HLS support (Safari / iOS)
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = channel.url;
-                video.addEventListener('loadedmetadata', () => {
-                    const playPromise = video.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(e => {
-                            console.warn("Autoplay block (Native). Setting muted:", e);
-                            video.muted = true;
-                            video.play().catch(err => console.log("Final play block:", err));
-                        });
-                    }
-                }, { once: true });
-                
-                video.addEventListener('error', (e) => {
-                    console.warn("Native Video Error:", video.error);
-                }, { once: true });
+                video.addEventListener('loadedmetadata', function() {
+                    video.play().catch(e => {
+                        video.muted = true;
+                        video.play();
+                    });
+                });
             }
-        } catch (err) {
-            console.error("Playback pipeline error:", err);
-            showToast("Video format error.");
         }
 
-        updateMediaUI();
-    }
+        // Hide loader when video actually starts playing
+        video.addEventListener('playing', () => {
+            loader.classList.remove('active');
+        });
 
-    function togglePlay() {
-        if (video.paused) { 
-            video.play().catch(e => console.warn(e)); 
-        } else { 
-            video.pause(); 
-        }
-        updateMediaUI();
-    }
+        // Show loader if the video stalls/buffers
+        video.addEventListener('waiting', () => {
+            loader.classList.add('active');
+        });
+        
+        // Hide loader if error occurs
+        video.addEventListener('error', () => {
+            loader.classList.remove('active');
+        });
 
-    function toggleMute() {
-        video.muted = !video.muted;
-        updateMediaUI();
-    }
-    
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.getElementById('playerCard').requestFullscreen().catch(err => {});
-        } else {
-            document.exitFullscreen();
-        }
-    }
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load the first channel (Somoy TV) automatically
+            if (channels.length > 0) {
+                playChannel(channels[0]);
+            } else {
+                renderChannels();
+            }
+        });
 
-    function updateMediaUI() {
-        playBtn.innerHTML = video.paused ? '<i class="fa fa-play"></i> Play' : '<i class="fa fa-pause"></i> Pause';
-        muteBtn.innerHTML = video.muted ? '<i class="fa fa-volume-mute"></i> Unmute' : '<i class="fa fa-volume-up"></i> Sound';
-    }
-
-    video.addEventListener('play', updateMediaUI);
-    video.addEventListener('pause', updateMediaUI);
-    video.addEventListener('volumechange', updateMediaUI);
-
-    function showToast(msg) {
-        const box = document.getElementById('toastBox');
-        document.getElementById('toastText').textContent = msg;
-        box.classList.add('show');
-        setTimeout(() => box.classList.remove('show'), 3000);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        renderChannels();
-        if(window.masterChannels.length > 0) {
-            // Auto-play the first channel safely
-            playStream(window.masterChannels[0]); 
-        }
-    });
-
-</script>
+    </script>
 </body>
 </html>
