@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>md sabbir TV</title>
     
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -55,7 +56,7 @@
             font-size: 18px;
             font-weight: 700;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: #60a5fa; /* Light blue brand text */
+            color: #60a5fa; 
         }
 
         .brand img {
@@ -75,7 +76,6 @@
             gap: 10px;
         }
 
-        /* Custom Scrollbar for Sidebar */
         .channel-list::-webkit-scrollbar {
             width: 6px;
         }
@@ -107,7 +107,6 @@
             background-color: var(--bg-item-hover);
         }
 
-        /* Active State */
         .channel-item.active {
             border-color: var(--border-active);
             box-shadow: 0 0 12px var(--glow-active);
@@ -144,7 +143,7 @@
             flex: 1;
         }
 
-        /* --- Player Area --- */
+        /* --- Player Area (Advanced Look) --- */
         .player-area {
             flex: 1;
             position: relative;
@@ -152,6 +151,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            /* Inner shadow for a cinematic feel */
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.9);
         }
 
         video {
@@ -159,6 +160,58 @@
             height: 100%;
             outline: none;
             object-fit: contain;
+            z-index: 1;
+        }
+
+        /* --- Watermarks --- */
+        .watermark-live {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+            pointer-events: none; /* Prevents blocking video clicks */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ff3b30;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 59, 48, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+        }
+
+        .watermark-brand {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: rgba(255, 255, 255, 0.4); /* Semi-transparent */
+            font-size: 24px;
+            font-weight: 900;
+            z-index: 10;
+            pointer-events: none;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+            user-select: none;
+            letter-spacing: 1px;
         }
 
         /* --- Loader --- */
@@ -201,25 +254,50 @@
                 height: 50vh;
                 width: 100%;
             }
+            .watermark-live {
+                top: 15px;
+                left: 15px;
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+            .watermark-brand {
+                top: 15px;
+                right: 15px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- Sidebar -->
     <div class="sidebar">
         <div class="brand">
             <img src="https://ui-avatars.com/api/?name=MS&background=1d4ed8&color=fff" alt="md sabbir TV Logo">
             md sabbir TV
         </div>
         <div class="channel-list" id="channelList">
-            </div>
+            <!-- Channels will be injected here by Javascript -->
+        </div>
     </div>
 
+    <!-- Player Area -->
     <div class="player-area">
+        <!-- Live Badge Overlay -->
+        <div class="watermark-live">
+            <span class="live-dot"></span> Play Live
+        </div>
+        
+        <!-- Brand Watermark Overlay -->
+        <div class="watermark-brand">
+            sabbir tv 24/7
+        </div>
+
         <video id="videoPlayer" controls autoplay playsinline></video>
         <div class="loader" id="playerLoader"></div>
     </div>
 
+    <!-- HLS.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 
     <script>
@@ -272,6 +350,20 @@
                 url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", 
                 logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/TyC_Sports_logo.svg/512px-TyC_Sports_logo.svg.png", 
                 numClass: "num-blue" 
+            },
+            { 
+                id: 8, 
+                name: "Bein Sports 1 4K", 
+                url: "https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8", 
+                logo: "https://upload.wikimedia.org/wikipedia/commons/2/20/Bein_sport_logo.png", 
+                numClass: "num-blue" 
+            },
+            { 
+                id: 9, 
+                name: "Premier League", 
+                url: "https://premierleagpl23.akamaized.net/hls/live/2107108/tapmad-P2s6L_FiN@L-UrU/level_1.m3u8", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Premier_League_Logo.svg/512px-Premier_League_Logo.svg.png", 
+                numClass: "num-dark" 
             }
         ];
 
@@ -328,7 +420,6 @@
                     const playPromise = video.play();
                     if (playPromise !== undefined) {
                         playPromise.catch(error => {
-                            console.warn("Autoplay prevented. Muting to allow playback.");
                             video.muted = true;
                             video.play().catch(e => console.error("Final play error:", e));
                         });
@@ -339,17 +430,14 @@
                     if (data.fatal) {
                         switch (data.type) {
                             case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.warn("Network error, trying to recover...");
                                 hls.startLoad();
                                 break;
                             case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.warn("Media error, trying to recover...");
                                 hls.recoverMediaError();
                                 break;
                             default:
                                 hls.destroy();
                                 loader.classList.remove('active');
-                                alert("Fatal stream error occurred.");
                                 break;
                         }
                     }
