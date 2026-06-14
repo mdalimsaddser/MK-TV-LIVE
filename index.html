@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>md sabbir  TV</title>
+    <title>md sabbir TV</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -91,7 +90,7 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        /* --- Channel Item (Matches Screenshot) --- */
+        /* --- Channel Item --- */
         .channel-item {
             display: flex;
             align-items: center;
@@ -108,7 +107,7 @@
             background-color: var(--bg-item-hover);
         }
 
-        /* Active State (Green glowing outline from screenshot) */
+        /* Active State */
         .channel-item.active {
             border-color: var(--border-active);
             box-shadow: 0 0 12px var(--glow-active);
@@ -124,7 +123,6 @@
             text-align: center;
         }
 
-        /* Mimicking the screenshot where some numbers have blue backgrounds and others dark */
         .num-dark { background-color: var(--num-bg-dark); }
         .num-blue { background-color: var(--num-bg-blue); }
 
@@ -133,7 +131,7 @@
             height: 32px;
             border-radius: 4px;
             object-fit: contain;
-            background-color: #fff; /* White background for logos */
+            background-color: #fff;
             padding: 2px;
         }
 
@@ -163,7 +161,7 @@
             object-fit: contain;
         }
 
-        /* --- Loader (Matches the dark ring from the screenshot) --- */
+        /* --- Loader --- */
         .loader {
             position: absolute;
             top: 50%;
@@ -171,8 +169,8 @@
             transform: translate(-50%, -50%);
             width: 50px;
             height: 50px;
-            border: 5px solid #1f2937; /* Dark gray ring */
-            border-top: 5px solid #94a3b8; /* Light gray spinner */
+            border: 5px solid #1f2937;
+            border-top: 5px solid #94a3b8;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             display: none;
@@ -208,43 +206,35 @@
 </head>
 <body>
 
-    
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="brand">
-            <!-- Generic brand logo matching the blue tone -->
-            <img src="https://ui-avatars.com/api/?name=ATV&background=1d4ed8&color=fff" alt="Ariful TV Logo">
-           md sabbir
+            <img src="https://ui-avatars.com/api/?name=MS&background=1d4ed8&color=fff" alt="md sabbir TV Logo">
+            md sabbir TV
         </div>
         <div class="channel-list" id="channelList">
-            <!-- Channels will be injected here by Javascript -->
-        </div>
+            </div>
     </div>
 
-    <!-- Player Area -->
     <div class="player-area">
         <video id="videoPlayer" controls autoplay playsinline></video>
         <div class="loader" id="playerLoader"></div>
     </div>
 
-    <!-- HLS.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 
     <script>
-        // Channel Data (Exactly matching the requested channels and order from the screenshot)
-        // Somoy TV uses your provided link. The rest use a reliable test stream for demonstration.
         const channels = [
             { 
                 id: 1, 
                 name: "Somoy TV", 
                 url: "https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8", 
-                logo: "https://stream.codecloud.bd/uploads/logos/logo_6a2a3badb5621.png", // Somoy TV logo
+                logo: "https://stream.codecloud.bd/uploads/logos/logo_6a2a3badb5621.png", 
                 numClass: "num-dark" 
             },
             { 
                 id: 2, 
                 name: "TNT Sports", 
-                url: "https://1nyaler.streamhostingcdn.top/stream/30/index.m3u8", // Fallback test stream
+                url: "https://1nyaler.streamhostingcdn.top/stream/30/index.m3u8", 
                 logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/TNT_Sports_Logo_2023.svg/512px-TNT_Sports_Logo_2023.svg.png", 
                 numClass: "num-dark" 
             },
@@ -296,10 +286,8 @@
             
             channels.forEach((channel) => {
                 const item = document.createElement('div');
-                // If it's the currently playing channel, add the 'active' class (Green border)
                 item.className = `channel-item ${channel.id === currentChannelId ? 'active' : ''}`;
                 
-                // Clicking the item plays the channel
                 item.onclick = () => playChannel(channel);
 
                 item.innerHTML = `
@@ -314,23 +302,19 @@
 
         function playChannel(channel) {
             currentChannelId = channel.id;
-            renderChannels(); // Re-render to update the green active border
+            renderChannels(); 
             
-            // Show the loading spinner
             loader.classList.add('active');
             
-            // Stop and destroy previous HLS instance if it exists
             if (hls) {
                 hls.destroy();
                 hls = null;
             }
             
-            // Pause current video and clear source
             video.pause();
             video.removeAttribute('src');
             video.load();
 
-            // Check if HLS.js is supported (Most Desktop browsers)
             if (Hls.isSupported()) {
                 hls = new Hls({
                     enableWorker: true,
@@ -344,7 +328,6 @@
                     const playPromise = video.play();
                     if (playPromise !== undefined) {
                         playPromise.catch(error => {
-                            // Autoplay block handler
                             console.warn("Autoplay prevented. Muting to allow playback.");
                             video.muted = true;
                             video.play().catch(e => console.error("Final play error:", e));
@@ -352,7 +335,6 @@
                     }
                 });
 
-                // Error handling
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     if (data.fatal) {
                         switch (data.type) {
@@ -373,7 +355,6 @@
                     }
                 });
             } 
-            // Fallback for Native HLS support (Safari / iOS)
             else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = channel.url;
                 video.addEventListener('loadedmetadata', function() {
@@ -385,24 +366,19 @@
             }
         }
 
-        // Hide loader when video actually starts playing
         video.addEventListener('playing', () => {
             loader.classList.remove('active');
         });
 
-        // Show loader if the video stalls/buffers
         video.addEventListener('waiting', () => {
             loader.classList.add('active');
         });
         
-        // Hide loader if error occurs
         video.addEventListener('error', () => {
             loader.classList.remove('active');
         });
 
-        // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
-            // Load the first channel (Somoy TV) automatically
             if (channels.length > 0) {
                 playChannel(channels[0]);
             } else {
