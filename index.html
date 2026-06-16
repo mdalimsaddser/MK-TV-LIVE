@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Md Sabbir Hossain - Cinema Live TV Deck</title>
+    <title>Md Sabbir Hossain - VIP Live TV Deck</title>
     <!-- Hls.js Streaming Engine -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
     <!-- FontAwesome Pro UI Icons -->
@@ -38,7 +38,6 @@
             background-image: radial-gradient(circle at 50% 50%, #15092b 0%, var(--bg-dark) 80%);
         }
 
-        /* Responsive Global Wrapper */
         .dashboard-wrapper {
             width: 100vw;
             height: 100vh;
@@ -48,7 +47,6 @@
             padding: 20px;
         }
 
-        /* Advanced Responsive Video Container */
         .player-container {
             position: relative;
             width: 100%;
@@ -71,6 +69,14 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            outline: none;
+        }
+
+        video::-webkit-media-controls {
+            display: none !important;
+        }
+        video::-webkit-media-controls-enclosure {
+            display: none !important;
         }
 
         /* Top Overlay Layer */
@@ -84,6 +90,7 @@
             align-items: center;
             z-index: 10;
             pointer-events: none;
+            transition: opacity 0.4s ease;
         }
 
         .live-status-tag {
@@ -115,7 +122,7 @@
             100% { transform: scale(1.4); opacity: 1; }
         }
 
-        /* --- Ghost Floating Watermark --- */
+        /* Ghost Floating Watermark */
         .dynamic-watermark {
             position: absolute;
             color: rgba(255, 255, 255, 0.08);
@@ -133,33 +140,40 @@
             transform: translate(-50%, -50%);
         }
 
-        /* Ultra Premium Floating Control Bar (এখন নিউজ বারের ঠিক উপরে সুন্দরভাবে সেট করা) */
+        /* Premium Control HUD - Auto Hide Support */
         .control-hud-panel {
             position: absolute;
-            bottom: 75px; /* নিউজ বারের উপরে জায়গা রাখার জন্য নিচ থেকে উপরে উঠানো হয়েছে */
+            bottom: 75px; 
             left: 50%;
-            transform: translateX(-50%) translateY(20px);
+            transform: translateX(-50%) translateY(0);
             width: calc(100% - 60px);
-            max-width: 650px;
-            background: rgba(10, 10, 15, 0.6);
+            max-width: 500px; /* সাইজ কিছুটা ছোট করা হয়েছে মোবাইল ফ্রেন্ডলি করার জন্য */
+            background: rgba(10, 10, 15, 0.75);
             backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
-            padding: 12px 24px;
+            padding: 10px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            opacity: 0;
-            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
             z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
-        .player-container:hover .control-hud-panel,
-        .player-container:focus-within .control-hud-panel {
+        /* যখন ইউজার একটিভ থাকবে তখন কন্ট্রোল দেখাবে */
+        .player-container.user-active .control-hud-panel,
+        .player-container.user-active .top-overlay-layer {
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        /* কারসর হাইড করার ট্রিক যখন অলস থাকবে */
+        .player-container.user-inactive {
+            cursor: none;
         }
 
         .hud-cluster {
@@ -172,25 +186,24 @@
             background: var(--panel-glass);
             border: 1px solid rgba(255, 255, 255, 0.03);
             color: #fff;
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-            font-size: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
         }
 
         .hud-btn:hover {
             background: #fff;
             color: #000;
-            transform: scale(1.08);
-            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
         }
 
-        /* Smooth Volume Module */
+        /* Volume Slider */
         .vol-module {
             display: flex;
             align-items: center;
@@ -206,11 +219,11 @@
             background: rgba(255,255,255,0.15);
             outline: none;
             cursor: pointer;
-            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+            transition: width 0.3s ease, opacity 0.2s ease;
         }
 
         .vol-module:hover .vol-slider, .vol-slider:focus {
-            width: 80px;
+            width: 70px;
             opacity: 1;
         }
 
@@ -220,7 +233,6 @@
             height: 12px;
             border-radius: 50%;
             background: #fff;
-            box-shadow: 0 0 10px var(--accent-glow);
         }
 
         /* Loader */
@@ -244,9 +256,9 @@
         }
 
         .pulse-loader {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(139, 0, 255, 0.1);
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(139, 0, 255, 0.1);
             border-top-color: var(--accent-glow);
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
@@ -256,15 +268,15 @@
             to { transform: rotate(360deg); }
         }
 
-        /* --- TV Style News Headline Bar (ভিডিও ফ্রেমের একদম ভেতরে নিচে) --- */
+        /* TV Style News Headline Bar */
         .tv-news-ticker {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: linear-gradient(90deg, rgba(15, 5, 30, 0.9) 0%, rgba(20, 5, 25, 0.95) 100%);
+            background: linear-gradient(90deg, rgba(15, 5, 30, 0.95) 0%, rgba(20, 5, 25, 0.98) 100%);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            height: 44px;
+            height: 40px;
             display: flex;
             align-items: center;
             z-index: 8;
@@ -272,13 +284,12 @@
             box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
         }
 
-        /* লাইভ হেডলাইন শুরুর প্রফেশনাল লাল ফ্ল্যাশ ট্যাগ */
         .ticker-label {
             background: linear-gradient(135deg, #ff0055, #cc0044);
             color: #fff;
             height: 100%;
-            padding: 0 20px;
-            font-size: 13px;
+            padding: 0 16px;
+            font-size: 12px;
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -287,21 +298,19 @@
             z-index: 10;
             position: relative;
             white-space: nowrap;
-            box-shadow: 8px 0 20px rgba(0, 0, 0, 0.4);
         }
 
         .ticker-label::after {
             content: '';
             position: absolute;
-            right: -12px;
+            right: -10px;
             top: 0;
             width: 0;
             height: 0;
-            border-top: 44px solid transparent;
-            border-left: 12px solid #cc0044;
+            border-top: 40px solid transparent;
+            border-left: 10px solid #cc0044;
         }
 
-        /* স্ক্রোলিং টেক্সট ট্র্যাকিং এরিয়া */
         .ticker-marquee {
             flex-grow: 1;
             overflow: hidden;
@@ -312,10 +321,10 @@
 
         .ticker-text {
             display: inline-block;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: #ffffff;
-            padding-left: 100%; /* একদম ডান পাশ থেকে বের হবে */
+            padding-left: 100%; 
             animation: ticker-move 28s linear infinite;
         }
 
@@ -324,24 +333,22 @@
             100% { transform: translate3d(-100%, 0, 0); }
         }
 
-        /* Responsive Optimization */
         @media (max-width: 768px) {
             .dashboard-wrapper { padding: 0; }
             .player-container { border-radius: 0; border: none; }
-            .control-hud-panel { bottom: 65px; width: calc(100% - 30px); padding: 8px 16px; }
-            .hud-btn { width: 36px; height: 36px; font-size: 13px; }
-            .tv-news-ticker { height: 36px; }
-            .ticker-label { font-size: 11px; padding: 0 12px; }
-            .ticker-label::after { border-top: 36px solid transparent; }
-            .ticker-text { font-size: 12px; }
+            .control-hud-panel { bottom: 55px; width: calc(100% - 20px); padding: 6px 12px; }
+            .hud-btn { width: 34px; height: 34px; font-size: 12px; border-radius: 10px; }
+            .tv-news-ticker { height: 34px; }
+            .ticker-label { font-size: 10px; padding: 0 10px; }
+            .ticker-label::after { border-top: 34px solid transparent; }
+            .ticker-text { font-size: 11px; }
         }
     </style>
 </head>
 <body>
 
     <div class="dashboard-wrapper">
-        <!-- Live Playback Deck Container -->
-        <div class="player-container" id="deckContainer">
+        <div class="player-container user-active" id="deckContainer">
             
             <!-- Context Indicators Layer -->
             <div class="top-overlay-layer">
@@ -361,7 +368,6 @@
 
             <!-- Advanced Control Overlay HUD Frame -->
             <div class="control-hud-panel">
-                <!-- Left Command Block -->
                 <div class="hud-cluster">
                     <button class="hud-btn" id="masterPlayBtn" title="Play/Pause (Space)"><i class="fas fa-play"></i></button>
                     
@@ -371,13 +377,12 @@
                     </div>
                 </div>
 
-                <!-- Right Command Block -->
                 <div class="hud-cluster">
                     <button class="hud-btn" id="masterFullscreenBtn" title="Fullscreen (F)"><i class="fas fa-expand"></i></button>
                 </div>
             </div>
 
-            <!-- --- Inside Player TV News Ticker (ভিডিওর ভেতরে নিচের হেডলাইন) --- -->
+            <!-- TV News Ticker -->
             <div class="tv-news-ticker">
                 <div class="ticker-label"><i class="fa-solid fa-satellite-dish" style="margin-right: 6px;"></i> LIVE NOTICE</div>
                 <div class="ticker-marquee">
@@ -427,10 +432,33 @@
             videoElement.src = streamSrc;
         }
 
-        // --- Ghost Floating Watermark Position Loop ---
+        // --- Intelligent Auto Hide System (স্মার্ট কন্ট্রোল হাইড ফিচার) ---
+        let activityTimeout;
+        function resetActivityTimer() {
+            deckContainer.classList.remove('user-inactive');
+            deckContainer.classList.add('user-active');
+            
+            clearTimeout(activityTimeout);
+            
+            // ৩ সেকেন্ড কোনো নড়াচড়া না থাকলে কন্ট্রোল হাইড হবে
+            activityTimeout = setTimeout(() => {
+                if (!videoElement.paused) { // ভিডিও পজ করা থাকলে হাইড হবে না
+                    deckContainer.classList.remove('user-active');
+                    deckContainer.classList.add('user-inactive');
+                }
+            }, 3000);
+        }
+
+        // মাউস মুভমেন্ট এবং টাচ স্ক্রিন ট্র্যাকিং
+        deckContainer.addEventListener('mousemove', resetActivityTimer);
+        deckContainer.addEventListener('click', resetActivityTimer);
+        deckContainer.addEventListener('touchstart', resetActivityTimer);
+        resetActivityTimer();
+
+        // Ghost Floating Watermark
         function cycleWatermarkPosition() {
             const minX = 15, maxX = 70;
-            const minY = 20, maxY = 60; // টেক্সট যেন নিউজ বারের নিচে চাপা না পড়ে
+            const minY = 20, maxY = 60;
             
             const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
             const randomY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
@@ -440,12 +468,13 @@
         }
         setInterval(cycleWatermarkPosition, 14000);
 
-        // --- Player Controls Script ---
+        // Player Controls Script
         function handlePlayToggle() {
             if (videoElement.paused) {
                 videoElement.play().catch(() => {});
             } else {
                 videoElement.pause();
+                resetActivityTimer(); // পজ করলে কন্ট্রোল বার স্থায়ীভাবে থাকবে
             }
         }
         masterPlayBtn.addEventListener('click', handlePlayToggle);
@@ -476,7 +505,6 @@
             masterVolSlider.value = videoElement.muted ? 0 : videoElement.volume;
         }
 
-        // Fullscreen Mode Controller
         masterFullscreenBtn.addEventListener('click', () => {
             if (!document.fullscreenElement) {
                 deckContainer.requestFullscreen().catch(() => {});
@@ -493,12 +521,10 @@
             }
         });
 
-        // Dynamic Loading Control
         videoElement.addEventListener('waiting', () => bufferMask.classList.add('active'));
         videoElement.addEventListener('playing', () => bufferMask.classList.remove('active'));
         videoElement.addEventListener('canplay', () => bufferMask.classList.remove('active'));
 
-        // Shortcuts mapping
         document.addEventListener('keydown', (e) => {
             if(document.activeElement.tagName === 'INPUT') return;
             switch(e.key.toLowerCase()) {
