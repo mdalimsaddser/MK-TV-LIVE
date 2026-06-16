@@ -17,12 +17,11 @@
             --panel-glass: rgba(255, 255, 255, 0.04);
             --border-glass: rgba(255, 255, 255, 0.08);
             --text-main: #f5f5fa;
+            --text-dim: #707080;
         }
 
         * {
             box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
         body {
@@ -63,6 +62,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: all 0.4s ease;
         }
 
         video {
@@ -72,9 +72,14 @@
             outline: none;
         }
 
-        video::-webkit-media-controls { display: none !important; }
-        video::-webkit-media-controls-enclosure { display: none !important; }
+        video::-webkit-media-controls {
+            display: none !important;
+        }
+        video::-webkit-media-controls-enclosure {
+            display: none !important;
+        }
 
+        /* Top Overlay Layer */
         .top-overlay-layer {
             position: absolute;
             top: 30px;
@@ -103,6 +108,21 @@
             box-shadow: 0 0 25px rgba(255, 0, 85, 0.5);
         }
 
+        .live-status-tag::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: pulse-dot 0.8s infinite alternate;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.7); opacity: 0.3; }
+            100% { transform: scale(1.4); opacity: 1; }
+        }
+
+        /* Ghost Floating Watermark */
         .dynamic-watermark {
             position: absolute;
             color: rgba(255, 255, 255, 0.08);
@@ -112,19 +132,22 @@
             text-transform: uppercase;
             pointer-events: none;
             z-index: 9;
+            user-select: none;
             transition: top 2s cubic-bezier(0.2, 1, 0.2, 1), left 2s cubic-bezier(0.2, 1, 0.2, 1);
+            filter: blur(0.2px);
             top: 40%;
             left: 50%;
             transform: translate(-50%, -50%);
         }
 
+        /* Premium Control HUD - Auto Hide Support */
         .control-hud-panel {
             position: absolute;
             bottom: 75px; 
             left: 50%;
             transform: translateX(-50%) translateY(0);
             width: calc(100% - 60px);
-            max-width: 500px;
+            max-width: 500px; /* সাইজ কিছুটা ছোট করা হয়েছে মোবাইল ফ্রেন্ডলি করার জন্য */
             background: rgba(10, 10, 15, 0.75);
             backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
@@ -141,14 +164,23 @@
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
+        /* যখন ইউজার একটিভ থাকবে তখন কন্ট্রোল দেখাবে */
         .player-container.user-active .control-hud-panel,
         .player-container.user-active .top-overlay-layer {
             opacity: 1;
             pointer-events: auto;
         }
 
-        .player-container.user-inactive { cursor: none; }
-        .hud-cluster { display: flex; align-items: center; gap: 16px; }
+        /* কারসর হাইড করার ট্রিক যখন অলস থাকবে */
+        .player-container.user-inactive {
+            cursor: none;
+        }
+
+        .hud-cluster {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
         .hud-btn {
             background: var(--panel-glass);
@@ -165,8 +197,18 @@
             transition: all 0.2s ease;
         }
 
-        .hud-btn:hover { background: #fff; color: #000; transform: scale(1.05); }
-        .vol-module { display: flex; align-items: center; gap: 8px; }
+        .hud-btn:hover {
+            background: #fff;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        /* Volume Slider */
+        .vol-module {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
         .vol-slider {
             -webkit-appearance: none;
@@ -180,9 +222,20 @@
             transition: width 0.3s ease, opacity 0.2s ease;
         }
 
-        .vol-module:hover .vol-slider, .vol-slider:focus { width: 70px; opacity: 1; }
-        .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+        .vol-module:hover .vol-slider, .vol-slider:focus {
+            width: 70px;
+            opacity: 1;
+        }
 
+        .vol-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        /* Loader */
         .buffer-loading-mask {
             position: absolute;
             inset: 0;
@@ -197,7 +250,10 @@
             transition: opacity 0.25s ease;
         }
 
-        .buffer-loading-mask.active { opacity: 1; pointer-events: auto; }
+        .buffer-loading-mask.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
         .pulse-loader {
             width: 50px;
@@ -208,8 +264,11 @@
             animation: spin 0.7s linear infinite;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
+        /* TV Style News Headline Bar */
         .tv-news-ticker {
             position: absolute;
             bottom: 0;
@@ -242,36 +301,36 @@
         }
 
         .ticker-label::after {
-            content: ''; position: absolute; right: -10px; top: 0; width: 0; height: 0;
-            border-top: 40px solid transparent; border-left: 10px solid #cc0044;
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-top: 40px solid transparent;
+            border-left: 10px solid #cc0044;
         }
 
-        .ticker-marquee { flex-grow: 1; overflow: hidden; white-space: nowrap; display: flex; align-items: center; }
+        .ticker-marquee {
+            flex-grow: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+        }
 
         .ticker-text {
-            display: inline-block; font-size: 13px; font-weight: 500; color: #ffffff;
-            padding-left: 100%; animation: ticker-move 28s linear infinite;
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #ffffff;
+            padding-left: 100%; 
+            animation: ticker-move 28s linear infinite;
         }
 
         @keyframes ticker-move {
             0% { transform: translate3d(0, 0, 0); }
             100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        /* Hacker Block Screen */
-        #hackerBlockScreen {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: #000;
-            color: #ff0055;
-            font-size: 40px;
-            font-weight: 900;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999999;
-            font-family: sans-serif;
-            text-transform: uppercase;
         }
 
         @media (max-width: 768px) {
@@ -288,35 +347,42 @@
 </head>
 <body>
 
-    <div id="hackerBlockScreen">Access Denied</div>
-
-    <div class="dashboard-wrapper" id="mainAppContent">
+    <div class="dashboard-wrapper">
         <div class="player-container user-active" id="deckContainer">
+            
+            <!-- Context Indicators Layer -->
             <div class="top-overlay-layer">
                 <div class="live-status-tag">Live Feed</div>
             </div>
 
+            <!-- Soft Ghost Drift Watermark -->
             <div class="dynamic-watermark" id="secureWatermark">Md Sabbir Hossain</div>
 
+            <!-- Processing Spinner Mask -->
             <div class="buffer-loading-mask" id="bufferMask">
                 <div class="pulse-loader"></div>
             </div>
 
+            <!-- Core Video Engine Frame -->
             <video id="coreVideo" playsinline crossorigin="anonymous" autoplay></video>
 
+            <!-- Advanced Control Overlay HUD Frame -->
             <div class="control-hud-panel">
                 <div class="hud-cluster">
-                    <button class="hud-btn" id="masterPlayBtn"><i class="fas fa-play"></i></button>
+                    <button class="hud-btn" id="masterPlayBtn" title="Play/Pause (Space)"><i class="fas fa-play"></i></button>
+                    
                     <div class="vol-module">
-                        <button class="hud-btn" id="masterMuteBtn"><i class="fas fa-volume-up"></i></button>
+                        <button class="hud-btn" id="masterMuteBtn" title="Mute/Unmute"><i class="fas fa-volume-up"></i></button>
                         <input type="range" class="vol-slider" id="masterVolSlider" min="0" max="1" step="0.05" value="1">
                     </div>
                 </div>
+
                 <div class="hud-cluster">
-                    <button class="hud-btn" id="masterFullscreenBtn"><i class="fas fa-expand"></i></button>
+                    <button class="hud-btn" id="masterFullscreenBtn" title="Fullscreen (F)"><i class="fas fa-expand"></i></button>
                 </div>
             </div>
 
+            <!-- TV News Ticker -->
             <div class="tv-news-ticker">
                 <div class="ticker-label"><i class="fa-solid fa-satellite-dish" style="margin-right: 6px;"></i> LIVE NOTICE</div>
                 <div class="ticker-marquee">
@@ -325,37 +391,13 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
     <script>
-        function triggerDefense() {
-            document.getElementById('mainAppContent').style.display = 'none';
-            const blockScreen = document.getElementById('hackerBlockScreen');
-            blockScreen.style.display = 'flex';
-            if(videoElement) { videoElement.pause(); videoElement.src = ""; }
-        }
-
-        // মাউসের রাইট ক্লিক ব্লক এবং অ্যাকশন
-        document.addEventListener('contextmenu', (e) => { 
-            e.preventDefault(); 
-            triggerDefense(); 
-        });
-
-        // কিবোর্ড শর্টকাট ব্লক
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
-                (e.ctrlKey && e.key === 'u')) {
-                e.preventDefault();
-                triggerDefense();
-            }
-        });
-
-        // সুরক্ষিত এনকোডেড লিংক
-        const cipherPayload = "aHR0cHM6Ly9iYWNrdXAuYWxhcmFmYXRvZmZpY2lhbC53b3JrZXJzLmRldi8/dXJsPWh0dHBzJTNBJTJGJTJGZDEyMTF3aHBpbWV1cHMuY2xvdWRmcm9udC5uZXQlMkZzbWlsJTNBcnRib2dvJTJGY2h1bmtsaXN0X2I0MDk2MDAwX3NsRU5HLm0zdTgmdWE9TW96aWxsYSUyRjUuMCArKFdpbmRvd3MgTlQgMTAuMDclM0IgV2luNjQlM0IgWDY0KSArQXBwbGVXZWJLaXQlMkY1MzcuMzYgKyhLSFRNTCwgbGlrZSBHZWNrbykgK0Nocm9tZSUyRjEyNC4wLjAuMCArU2FmYXJpJTJGMTI0LjAuMC4wJmVrZXk9U1BPUlRJWF9TRUNVUkVfS0VZXzIwMjY=";
-        const streamSrc = atob(cipherPayload).replace(/\s\+/g, '%20');
-
+        const streamSrc = "https://backup.alarafatofficial.workers.dev/?url=https%3A%2F%2Fd1211whpimeups.cloudfront.net%2Fsmil%3Artbgo%2Fchunklist_b4096000_slENG.m3u8&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F124.0.0.0%20Safari%2F537.36&ekey=SPORTIX_SECURE_KEY_2026";
+        
         const videoElement = document.getElementById('coreVideo');
         const deckContainer = document.getElementById('deckContainer');
         const masterPlayBtn = document.getElementById('masterPlayBtn');
@@ -367,63 +409,130 @@
 
         let activeEngineInstance = null;
 
+        // Initialize Engine
         if (Hls.isSupported()) {
-            activeEngineInstance = new Hls({ enableWorker: true, lowLatencyMode: true, backBufferLength: 90 });
+            activeEngineInstance = new Hls({
+                enableWorker: true,
+                lowLatencyMode: true,
+                backBufferLength: 90
+            });
             activeEngineInstance.loadSource(streamSrc);
             activeEngineInstance.attachMedia(videoElement);
+            
+            activeEngineInstance.on(Hls.Events.ERROR, (event, data) => {
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR: activeEngineInstance.startLoad(); break;
+                        case Hls.ErrorTypes.MEDIA_ERROR: activeEngineInstance.recoverMediaError(); break;
+                        default: videoElement.load(); break;
+                    }
+                }
+            });
         } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
             videoElement.src = streamSrc;
         }
 
-        // Auto Hide HUD
+        // --- Intelligent Auto Hide System (স্মার্ট কন্ট্রোল হাইড ফিচার) ---
         let activityTimeout;
         function resetActivityTimer() {
             deckContainer.classList.remove('user-inactive');
             deckContainer.classList.add('user-active');
+            
             clearTimeout(activityTimeout);
+            
+            // ৩ সেকেন্ড কোনো নড়াচড়া না থাকলে কন্ট্রোল হাইড হবে
             activityTimeout = setTimeout(() => {
-                if (!videoElement.paused) {
+                if (!videoElement.paused) { // ভিডিও পজ করা থাকলে হাইড হবে না
                     deckContainer.classList.remove('user-active');
                     deckContainer.classList.add('user-inactive');
                 }
             }, 3000);
         }
 
+        // মাউস মুভমেন্ট এবং টাচ স্ক্রিন ট্র্যাকিং
         deckContainer.addEventListener('mousemove', resetActivityTimer);
         deckContainer.addEventListener('click', resetActivityTimer);
         deckContainer.addEventListener('touchstart', resetActivityTimer);
         resetActivityTimer();
 
-        // Watermark Movement
+        // Ghost Floating Watermark
         function cycleWatermarkPosition() {
-            const minX = 15, maxX = 70; const minY = 20, maxY = 60;
+            const minX = 15, maxX = 70;
+            const minY = 20, maxY = 60;
+            
             const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
             const randomY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
-            secureWatermark.style.left = `${randomX}%`; secureWatermark.style.top = `${randomY}%`;
+            
+            secureWatermark.style.left = `${randomX}%`;
+            secureWatermark.style.top = `${randomY}%`;
         }
         setInterval(cycleWatermarkPosition, 14000);
 
-        function handlePlayToggle() { if (videoElement.paused) { videoElement.play().catch(() => {}); } else { videoElement.pause(); resetActivityTimer(); } }
+        // Player Controls Script
+        function handlePlayToggle() {
+            if (videoElement.paused) {
+                videoElement.play().catch(() => {});
+            } else {
+                videoElement.pause();
+                resetActivityTimer(); // পজ করলে কন্ট্রোল বার স্থায়ীভাবে থাকবে
+            }
+        }
         masterPlayBtn.addEventListener('click', handlePlayToggle);
         videoElement.addEventListener('click', handlePlayToggle);
+
         videoElement.addEventListener('play', () => masterPlayBtn.innerHTML = '<i class="fas fa-pause"></i>');
         videoElement.addEventListener('pause', () => masterPlayBtn.innerHTML = '<i class="fas fa-play"></i>');
 
-        masterVolSlider.addEventListener('input', (e) => { videoElement.volume = e.target.value; videoElement.muted = (videoElement.volume === 0); syncVolumeInterface(); });
-        masterMuteBtn.addEventListener('click', () => { videoElement.muted = !videoElement.muted; syncVolumeInterface(); });
+        masterVolSlider.addEventListener('input', (e) => {
+            videoElement.volume = e.target.value;
+            videoElement.muted = (videoElement.volume === 0);
+            syncVolumeInterface();
+        });
+
+        masterMuteBtn.addEventListener('click', () => {
+            videoElement.muted = !videoElement.muted;
+            syncVolumeInterface();
+        });
 
         function syncVolumeInterface() {
-            if (videoElement.muted || videoElement.volume === 0) { masterMuteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>'; }
-            else { masterMuteBtn.innerHTML = '<i class="fas fa-volume-up"></i>'; }
+            if (videoElement.muted || videoElement.volume === 0) {
+                masterMuteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            } else if (videoElement.volume < 0.5) {
+                masterMuteBtn.innerHTML = '<i class="fas fa-volume-down"></i>';
+            } else {
+                masterMuteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            }
             masterVolSlider.value = videoElement.muted ? 0 : videoElement.volume;
         }
 
-        masterFullscreenBtn.addEventListener('click', () => { if (!document.fullscreenElement) { deckContainer.requestFullscreen().catch(() => {}); } else { document.exitFullscreen(); } });
-        document.addEventListener('fullscreenchange', () => { if(document.fullscreenElement) { masterFullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>'; } else { masterFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>'; } });
+        masterFullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                deckContainer.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if(document.fullscreenElement) {
+                masterFullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                masterFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        });
 
         videoElement.addEventListener('waiting', () => bufferMask.classList.add('active'));
         videoElement.addEventListener('playing', () => bufferMask.classList.remove('active'));
         videoElement.addEventListener('canplay', () => bufferMask.classList.remove('active'));
+
+        document.addEventListener('keydown', (e) => {
+            if(document.activeElement.tagName === 'INPUT') return;
+            switch(e.key.toLowerCase()) {
+                case ' ': e.preventDefault(); handlePlayToggle(); break;
+                case 'f': e.preventDefault(); masterFullscreenBtn.click(); break;
+                case 'm': e.preventDefault(); masterMuteBtn.click(); break;
+            }
+        });
     </script>
 </body>
 </html>
