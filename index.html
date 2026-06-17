@@ -4,65 +4,415 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Md Sabbir Hossain - VIP Live TV Deck</title>
+    <!-- HLS.js for streaming -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
+    <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for premium typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --accent-glow: #ff0055; --accent-neon: #8b00ff; --bg-dark: #020204; }
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        
-        .player-container { 
-            position: relative; width: 90vw; max-width: 1000px; aspect-ratio: 16/9; 
-            background: #000; border-radius: 24px; overflow: hidden; border: 1px solid #333;
-        }
-        
-        video { width: 100%; height: 100%; object-fit: contain; }
-
-        /* HUD Styles */
-        .top-overlay-layer { position: absolute; top: 20px; left: 20px; z-index: 10; opacity: 0; transition: 0.3s; }
-        .live-status-tag { background: linear-gradient(135deg, var(--accent-glow), var(--accent-neon)); padding: 8px 16px; border-radius: 50px; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 8px; }
-        
-        .control-hud-panel { 
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); padding: 15px 25px;
-            border-radius: 20px; display: flex; gap: 20px; align-items: center; opacity: 0; transition: 0.3s;
+        :root { 
+            --accent-glow: #ff0055; 
+            --accent-neon: #8b00ff; 
+            --bg-dark: #050508;
+            --glass-bg: rgba(15, 15, 20, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #a0a0b0;
         }
 
-        .player-container:hover .top-overlay-layer, 
-        .player-container:hover .control-hud-panel { opacity: 1; }
+        * { box-sizing: border-box; }
 
-        .hud-btn { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; }
+        body { 
+            margin: 0; 
+            background: radial-gradient(circle at 50% 50%, #1a1a24 0%, var(--bg-dark) 100%); 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            overflow: hidden;
+        }
         
-        .tv-news-ticker { position: absolute; bottom: 0; width: 100%; height: 30px; background: #111; display: flex; align-items: center; overflow: hidden; }
-        .ticker-text { white-space: nowrap; animation: ticker-move 20s linear infinite; }
-        @keyframes ticker-move { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .player-wrapper {
+            position: relative;
+            width: 95vw; 
+            max-width: 1100px; 
+            aspect-ratio: 16/9; 
+            background: #000; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 
+                        0 0 30px rgba(139, 0, 255, 0.15), 
+                        inset 0 0 0 1px var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            display: block;
+        }
+
+        /* UI Overlays */
+        .overlay-ui {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+        }
+
+        /* Auto-hide states */
+        .player-wrapper.idle .overlay-ui { opacity: 0; }
+        .player-wrapper.idle { cursor: none; }
+        
+        /* Top Bar */
+        .top-bar {
+            padding: 20px 25px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .badges-left, .badges-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .tv-logo {
+            height: 38px;
+            width: 38px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .badge {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .badge-live {
+            background: linear-gradient(135deg, rgba(255,0,85,0.2), rgba(139,0,255,0.2));
+            border-color: rgba(255,0,85,0.3);
+            color: #fff;
+        }
+
+        .live-dot {
+            width: 8px; height: 8px;
+            background: var(--accent-glow);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-glow);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+
+        .badge-hd { color: #00ffcc; border-color: rgba(0,255,204,0.3); }
+
+        /* Center Play Button */
+        .center-play {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            color: #fff;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0; visibility: hidden;
+        }
+
+        .center-play:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 30px rgba(255,255,255,0.2);
+        }
+
+        .video-paused .center-play { opacity: 1; visibility: visible; }
+        .video-paused .overlay-ui { opacity: 1 !important; }
+
+        /* Bottom Controls */
+        .bottom-hud {
+            padding: 20px;
+            padding-bottom: 50px; /* Space for ticker */
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            padding: 10px 20px;
+            border-radius: 16px;
+        }
+
+        .hud-btn { 
+            background: none; 
+            border: none; 
+            color: var(--text-main); 
+            font-size: 18px; 
+            cursor: pointer; 
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+        }
+
+        .hud-btn:hover { 
+            color: var(--accent-glow);
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Volume Slider */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 10px;
+        }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 80px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+            transition: width 0.3s ease;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255,0,85,0.5);
+        }
+
+        /* News Ticker */
+        .tv-news-ticker { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0;
+            width: 100%; 
+            height: 35px; 
+            background: rgba(10, 10, 12, 0.95);
+            border-top: 1px solid var(--accent-glow);
+            display: flex; 
+            align-items: center; 
+            overflow: hidden; 
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            z-index: 20;
+        }
+        
+        .ticker-label {
+            background: var(--accent-glow);
+            color: #fff;
+            padding: 0 15px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-weight: 800;
+            text-transform: uppercase;
+            z-index: 2;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+        }
+
+        .ticker-wrap {
+            flex-grow: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ticker-text { 
+            display: inline-block;
+            white-space: nowrap; 
+            padding-left: 100%;
+            animation: ticker-move 25s linear infinite; 
+            color: #ddd;
+        }
+        
+        @keyframes ticker-move { 
+            0% { transform: translateX(0); } 
+            100% { transform: translateX(-100%); } 
+        }
+
+        /* Loader */
+        .loader {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px; height: 50px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent-glow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 5;
+            display: none;
+        }
+        .video-loading .loader { display: block; }
+        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        /* Notification Toast styles instead of native alert */
+        .toast-container {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 0, 85, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 99;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .toast-container.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(10px);
+        }
     </style>
 </head>
 <body>
 
-<div class="player-container" id="player-wrap">
-    <div class="top-overlay-layer">
-        <div class="live-status-tag"><i class="fas fa-circle"></i> LIVE NOW</div>
+<div class="player-wrapper video-paused video-loading" id="player-wrap">
+    
+    <!-- Custom Toast Notification -->
+    <div class="toast-container" id="toast-notif"></div>
+
+    <!-- Loader -->
+    <div class="loader" id="loader"></div>
+
+    <!-- Video Element -->
+    <video id="video" playsinline></video>
+
+    <!-- Big Center Play Button -->
+    <div class="center-play" id="center-play">
+        <i class="fas fa-play" style="margin-left: 5px;"></i>
     </div>
 
-    <video id="video" poster="https://via.placeholder.com/1280x720/000/fff?text=Loading+Stream..."></video>
+    <!-- UI Overlay (Fades out when idle) -->
+    <div class="overlay-ui">
+        
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="badges-left">
+                <img src="https://raw.githubusercontent.com/mdalimsaddser/Botsf/main/photo_2026-06-17_15-47-42.jpg" alt="Logo" class="tv-logo">
+                <div class="badge badge-live">
+                    <div class="live-dot"></div>
+                    LIVE
+                </div>
+                <div class="badge">
+                    <i class="fas fa-eye" style="color: var(--text-muted)"></i> 1.2K
+                </div>
+            </div>
+            <div class="badges-right">
+                <div class="badge badge-hd">1080p60</div>
+            </div>
+        </div>
 
-    <div class="control-hud-panel">
-        <button class="hud-btn" id="play-btn"><i class="fas fa-play"></i></button>
-        <button class="hud-btn" id="mute-btn"><i class="fas fa-volume-up"></i></button>
-        <button class="hud-btn" id="fs-btn"><i class="fas fa-expand"></i></button>
+        <!-- Bottom Controls -->
+        <div class="bottom-hud">
+            <div class="controls-group">
+                <button class="hud-btn" id="play-btn" title="Play/Pause"><i class="fas fa-play"></i></button>
+                <div class="volume-container">
+                    <button class="hud-btn" id="mute-btn" title="Mute/Unmute"><i class="fas fa-volume-up"></i></button>
+                    <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.05" value="1">
+                </div>
+            </div>
+            
+            <div class="controls-group">
+                <button class="hud-btn" title="Settings"><i class="fas fa-cog"></i></button>
+                <button class="hud-btn" id="fs-btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+            </div>
+        </div>
     </div>
 
+    <!-- Ticker (Always Visible) -->
     <div class="tv-news-ticker">
-        <div class="ticker-text">BREAKING NEWS: Welcome to the VIP Live TV Deck. High-quality streams loading... Stay tuned for more.</div>
+        <div class="ticker-label">BREAKING</div>
+        <div class="ticker-wrap">
+            <div class="ticker-text">
+                Welcome to the Md Sabbir Hossain VIP Live TV Deck. • High-quality encrypted streams initialized. • Enjoy an ad-free premium viewing experience. • Stay tuned for upcoming exclusive broadcasts.
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
     const video = document.getElementById('video');
     const playBtn = document.getElementById('play-btn');
+    const centerPlayBtn = document.getElementById('center-play');
     const muteBtn = document.getElementById('mute-btn');
     const fsBtn = document.getElementById('fs-btn');
+    const volumeSlider = document.getElementById('volume-slider');
     const playerWrap = document.getElementById('player-wrap');
+    const toastNotif = document.getElementById('toast-notif');
+
+    // Display custom message box (toast) instead of alert()
+    function showToast(message, duration = 4000) {
+        toastNotif.textContent = message;
+        toastNotif.classList.add('active');
+        setTimeout(() => {
+            toastNotif.classList.remove('active');
+        }, duration);
+    }
 
     // HLS Implementation
     const videoSrc = 'https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8'; 
@@ -70,23 +420,153 @@
         const hls = new Hls();
         hls.loadSource(videoSrc);
         hls.attachMedia(video);
+        
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+            playerWrap.classList.remove('video-loading');
+        });
+        
+        hls.on(Hls.Events.ERROR, function (event, data) {
+            if (data.fatal) {
+                console.error("Fatal error loading stream", data);
+            }
+        });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoSrc;
+        video.addEventListener('loadedmetadata', () => {
+            playerWrap.classList.remove('video-loading');
+        });
     }
 
-    // Controls
-    playBtn.addEventListener('click', () => {
-        video.paused ? video.play() : video.pause();
-        playBtn.innerHTML = video.paused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>';
+    // Play/Pause Logic
+    function togglePlay() {
+        if (video.paused) {
+            video.play();
+            playerWrap.classList.remove('video-paused');
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            video.pause();
+            playerWrap.classList.add('video-paused');
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    }
+
+    playBtn.addEventListener('click', togglePlay);
+    centerPlayBtn.addEventListener('click', togglePlay);
+    video.addEventListener('click', togglePlay);
+
+    // Sync state if video pauses/plays via external means (e.g. buffering or native controls)
+    video.addEventListener('play', () => {
+        playerWrap.classList.remove('video-paused');
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
     });
+    video.addEventListener('pause', () => {
+        playerWrap.classList.add('video-paused');
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    });
+
+    // Volume & Mute Logic
+    function updateVolumeIcon(vol) {
+        if (vol === 0 || video.muted) {
+            muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        } else if (vol < 0.5) {
+            muteBtn.innerHTML = '<i class="fas fa-volume-down"></i>';
+        } else {
+            muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        }
+    }
 
     muteBtn.addEventListener('click', () => {
         video.muted = !video.muted;
-        muteBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+        if(video.muted) {
+            volumeSlider.value = 0;
+        } else {
+            volumeSlider.value = video.volume || 1;
+        }
+        updateVolumeIcon(video.muted ? 0 : video.volume);
     });
 
-    fsBtn.addEventListener('click', () => {
-        if (!document.fullscreenElement) playerWrap.requestFullscreen();
-        else document.exitFullscreen();
+    volumeSlider.addEventListener('input', (e) => {
+        video.muted = false;
+        video.volume = e.target.value;
+        updateVolumeIcon(parseFloat(e.target.value));
     });
+
+    // Fullscreen Logic safely wrapped to prevent sandbox permissions errors
+    fsBtn.addEventListener('click', () => {
+        try {
+            if (!document.fullscreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                
+                let requestMethod = playerWrap.requestFullscreen || 
+                                    playerWrap.webkitRequestFullscreen || 
+                                    playerWrap.msRequestFullscreen || 
+                                    playerWrap.mozRequestFullScreen;
+
+                if (requestMethod) {
+                    const promise = requestMethod.call(playerWrap);
+                    if (promise !== undefined) {
+                        promise.then(() => {
+                            fsBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                        }).catch(err => {
+                            console.warn("Fullscreen permission denied by frame policy:", err);
+                            showToast("Fullscreen window mode is restricted by your browser's sandboxed permissions.");
+                        });
+                    }
+                } else {
+                    showToast("Fullscreen is not supported on this browser context.");
+                }
+            } else {
+                let exitMethod = document.exitFullscreen || 
+                                 document.webkitExitFullscreen || 
+                                 document.msExitFullscreen || 
+                                 document.mozCancelFullScreen;
+                if (exitMethod) {
+                    const promise = exitMethod.call(document);
+                    if (promise !== undefined) {
+                        promise.then(() => {
+                            fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                        }).catch(err => console.warn(err));
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Fullscreen initiation error handled gracefully:", e);
+            showToast("Failed to change fullscreen mode: Context sandbox permissions restriction.");
+        }
+    });
+
+    // Unified helper logic for synchronizing fullscreen button state
+    function onFullscreenChange() {
+        const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+        fsBtn.innerHTML = isFS ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+    }
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('msfullscreenchange', onFullscreenChange);
+
+    // Auto-hide HUD when idle
+    let idleTimer;
+    function resetIdleTimer() {
+        playerWrap.classList.remove('idle');
+        clearTimeout(idleTimer);
+        
+        // Only hide controls if the video is currently playing
+        if (!video.paused) {
+            idleTimer = setTimeout(() => {
+                playerWrap.classList.add('idle');
+            }, 3000);
+        }
+    }
+
+    // Listen to mouse movement and clicks on the player wrapper
+    ['mousemove', 'mousedown', 'touchstart', 'keydown'].forEach(event => {
+        playerWrap.addEventListener(event, resetIdleTimer);
+    });
+
+    // Initial setup
+    resetIdleTimer();
 </script>
 
 </body>
