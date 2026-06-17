@@ -4,341 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Md Sabbir Hossain - VIP Live TV Deck</title>
-    <!-- Hls.js Streaming Engine -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
-    <!-- FontAwesome Pro UI Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root {
-            --accent-glow: #ff0055;
-            --accent-neon: #8b00ff;
-            --bg-dark: #020204;
-            --panel-glass: rgba(255, 255, 255, 0.04);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --text-main: #f5f5fa;
-            --text-dim: #707080;
-        }
+        :root { --accent-glow: #ff0055; --accent-neon: #8b00ff; --bg-dark: #020204; }
+        body { margin: 0; background: var(--bg-dark); color: #f5f5fa; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        .player-container { position: relative; width: 90vw; max-width: 1080px; aspect-ratio: 16 / 9; background: #000; border-radius: 24px; overflow: hidden; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+        
+        /* HUD Overlays */
+        .top-overlay-layer, .control-hud-panel { position: absolute; opacity: 0; transition: opacity 0.4s; z-index: 10; }
+        .player-container.user-active .top-overlay-layer, 
+        .player-container.user-active .control-hud-panel { opacity: 1; }
+        
+        .control-hud-panel { bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); padding: 15px; border-radius: 15px; display: flex; gap: 20px; align-items: center; }
+        .live-status-tag { background: var(--accent-glow); padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+        
+        .hud-btn { background: none; border: none; color: white; cursor: pointer; font-size: 20px; }
+    </style>
+</head>
+<body>
 
-        * {
-            box-sizing: border-box;
-        }
+<div class="player-container" id="playerContainer">
+    <video id="videoPlayer" playsinline muted></video>
+    
+    <div class="top-overlay-layer" style="top: 20px; left: 20px;">
+        <div class="live-status-tag"><i class="fa fa-circle"></i> LIVE</div>
+    </div>
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-            background-image: radial-gradient(circle at 50% 50%, #15092b 0%, var(--bg-dark) 80%);
-        }
+    <div class="control-hud-panel">
+        <button class="hud-btn" id="playPauseBtn"><i class="fa fa-play"></i></button>
+        <button class="hud-btn" id="muteBtn"><i class="fa fa-volume-up"></i></button>
+    </div>
+</div>
 
-        .dashboard-wrapper {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+<script>
+    const video = document.getElementById('videoPlayer');
+    const container = document.getElementById('playerContainer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    
+    // HLS Initialization
+    const videoSrc = 'https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8';
+    if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(videoSrc);
+        hls.attachMedia(video);
+    } else {
+        video.src = videoSrc;
+    }
 
-        .player-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 1920px;
-            max-height: 1080px;
-            aspect-ratio: 16 / 9;
-            background-color: #000;
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.95), 0 0 80px rgba(139, 0, 255, 0.15);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.4s ease;
-        }
+    // Controls Logic
+    playPauseBtn.onclick = () => video.paused ? video.play() : video.pause();
+    muteBtn.onclick = () => video.muted = !video.muted;
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            outline: none;
-        }
+    // Auto-Hide HUD Logic
+    let timeout;
+    container.onmousemove = () => {
+        container.classList.add('user-active');
+        clearTimeout(timeout);
+        timeout = setTimeout(() => container.classList.remove('user-active'), 3000);
+    };
+</script>
 
-        video::-webkit-media-controls {
-            display: none !important;
-        }
-        video::-webkit-media-controls-enclosure {
-            display: none !important;
-        }
-
-        /* Top Overlay Layer */
-        .top-overlay-layer {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            right: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-        }
-
-        .live-status-tag {
-            background: linear-gradient(135deg, var(--accent-glow), var(--accent-neon));
-            color: #fff;
-            padding: 8px 18px;
-            font-size: 11px;
-            font-weight: 900;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 0 25px rgba(255, 0, 85, 0.5);
-        }
-
-        .live-status-tag::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background-color: #fff;
-            border-radius: 50%;
-            animation: pulse-dot 0.8s infinite alternate;
-        }
-
-        @keyframes pulse-dot {
-            0% { transform: scale(0.7); opacity: 0.3; }
-            100% { transform: scale(1.4); opacity: 1; }
-        }
-
-        /* Ghost Floating Watermark */
-        .dynamic-watermark {
-            position: absolute;
-            color: rgba(255, 255, 255, 0.08);
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            pointer-events: none;
-            z-index: 9;
-            user-select: none;
-            transition: top 2s cubic-bezier(0.2, 1, 0.2, 1), left 2s cubic-bezier(0.2, 1, 0.2, 1);
-            filter: blur(0.2px);
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        /* Premium Control HUD - Auto Hide Support */
-        .control-hud-panel {
-            position: absolute;
-            bottom: 75px; 
-            left: 50%;
-            transform: translateX(-50%) translateY(0);
-            width: calc(100% - 60px);
-            max-width: 500px; /* সাইজ কিছুটা ছোট করা হয়েছে মোবাইল ফ্রেন্ডলি করার জন্য */
-            background: rgba(10, 10, 15, 0.75);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-            z-index: 10;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-
-        /* যখন ইউজার একটিভ থাকবে তখন কন্ট্রোল দেখাবে */
-        .player-container.user-active .control-hud-panel,
-        .player-container.user-active .top-overlay-layer {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* কারসর হাইড করার ট্রিক যখন অলস থাকবে */
-        .player-container.user-inactive {
-            cursor: none;
-        }
-
-        .hud-cluster {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .hud-btn {
-            background: var(--panel-glass);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            color: #fff;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .hud-btn:hover {
-            background: #fff;
-            color: #000;
-            transform: scale(1.05);
-        }
-
-        /* Volume Slider */
-        .vol-module {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .vol-slider {
-            -webkit-appearance: none;
-            width: 0px;
-            opacity: 0;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255,255,255,0.15);
-            outline: none;
-            cursor: pointer;
-            transition: width 0.3s ease, opacity 0.2s ease;
-        }
-
-        .vol-module:hover .vol-slider, .vol-slider:focus {
-            width: 70px;
-            opacity: 1;
-        }
-
-        .vol-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #fff;
-        }
-
-        /* Loader */
-        .buffer-loading-mask {
-            position: absolute;
-            inset: 0;
-            background: rgba(2, 2, 4, 0.7);
-            backdrop-filter: blur(12px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 15;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-        }
-
-        .buffer-loading-mask.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .pulse-loader {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(139, 0, 255, 0.1);
-            border-top-color: var(--accent-glow);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* TV Style News Headline Bar */
-        .tv-news-ticker {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(90deg, rgba(15, 5, 30, 0.95) 0%, rgba(20, 5, 25, 0.98) 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            height: 40px;
-            display: flex;
-            align-items: center;
-            z-index: 8;
-            overflow: hidden;
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
-        }
-
-        .ticker-label {
-            background: linear-gradient(135deg, #ff0055, #cc0044);
-            color: #fff;
-            height: 100%;
-            padding: 0 16px;
-            font-size: 12px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: 10;
-            position: relative;
-            white-space: nowrap;
-        }
-
-        .ticker-label::after {
-            content: '';
-            position: absolute;
-            right: -10px;
-            top: 0;
-            width: 0;
-            height: 0;
-            border-top: 40px solid transparent;
-            border-left: 10px solid #cc0044;
-        }
-
-        .ticker-marquee {
-            flex-grow: 1;
-            overflow: hidden;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-        }
-
-        .ticker-text {
-            display: inline-block;
-            font-size: 13px;
-            font-weight: 500;
-            color: #ffffff;
-            padding-left: 100%; 
-            animation: ticker-move 28s linear infinite;
-        }
-
-        @keyframes ticker-move {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-wrapper { padding: 0; }
-            .player-container { border-radius: 0; border: none; }
-            .control-hud-panel { bottom: 55px; width: calc(100% - 20px); padding: 6px 12px; }
-            .hud-btn { width: 34px; height: 34px; font-size: 12px; border-radius: 10px; }
-            .tv-news-ticker { height: 34px; }
+</body>
+</html>            .tv-news-ticker { height: 34px; }
             .ticker-label { font-size: 10px; padding: 0 10px; }
             .ticker-label::after { border-top: 34px solid transparent; }
             .ticker-text { font-size: 11px; }
