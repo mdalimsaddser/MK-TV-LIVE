@@ -1,80 +1,523 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR TV - Professional Multi-Channel Deck</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        :root { --accent-glow: #ff0055; --bg-dark: #050508; --text-main: #f5f5fa; }
-        body { margin: 0; background: #000; color: var(--text-main); font-family: system-ui, sans-serif; overflow: hidden; }
-        .dashboard-wrapper { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        
-        .player-container { position: relative; width: 100%; max-height: calc(100vh - 26px); aspect-ratio: 16 / 9; overflow: hidden; }
-        video { width: 100%; height: 100%; object-fit: contain; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SR TV - VIP Live TV Deck</title>
+    <!-- Hls.js Streaming Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
+    <!-- FontAwesome Pro UI Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --accent-glow: #ff0055;
+            --accent-neon: #8b00ff;
+            --bg-dark: #050508;
+            --panel-glass: rgba(255, 255, 255, 0.08);
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --text-main: #f5f5fa;
+        }
 
-        /* Updated UI for 4 Channels */
-        .ui-layer { position: absolute; top: 15px; left: 15px; z-index: 20; display: flex; flex-direction: column; gap: 10px; opacity: 0; transition: opacity 0.3s; }
-        .player-container.user-active .ui-layer { opacity: 1; }
-        
-        .channel-switcher { display: flex; flex-wrap: wrap; gap: 8px; max-width: 250px; }
-        .channel-btn { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 10px; }
-        .channel-btn.active { background: var(--accent-glow); border-color: transparent; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        .branding-tag { background: rgba(255,255,255,0.07); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); width: fit-content; }
-        .owner-name { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; color: #fff; text-shadow: 0 0 8px rgba(255,0,85,0.8); }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
 
-        .buffer-loading-mask { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 15; opacity: 0; pointer-events: none; }
-        .buffer-loading-mask.active { opacity: 1; }
-        .pulse-loader { width: 45px; height: 45px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--accent-glow); border-radius: 50%; animation: spin 0.7s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
+        /* প্রধান কন্টেইনার ফ্লেক্সিবল করা হলো যাতে নোটিশ নিচে থাকে */
+        .dashboard-wrapper {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: #000;
+            display: flex;
+            flex-direction: column; /* এলিমেন্টগুলো উপর-নিচ করে সাজানো */
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* ব্যাকগ্রাউন্ড অ্যাম্বিয়েন্ট ব্লার */
+        .bg-blur-ambient {
+            position: absolute;
+            inset: -20px;
+            background-size: cover;
+            background-position: center;
+            filter: blur(50px) brightness(0.35);
+            opacity: 0.55;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ১৬:৯ প্লেয়ার কন্টেইনার */
+        .player-container {
+            position: relative;
+            width: 100%;
+            max-height: calc(100vh - 28px); /* নোটিশ বারের জায়গা বাদ দেওয়া হলো */
+            aspect-ratio: 16 / 9;
+            z-index: 2;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.85);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+            outline: none;
+            background: transparent;
+        }
+
+        video::-webkit-media-controls { display: none !important; }
+
+        /* লোগো লেয়ার */
+        .top-overlay-layer {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
+            z-index: 10;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* SR TV ব্র্যান্ড লোগো */
+        .tv-channel-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            user-select: none;
+            filter: drop-shadow(0 0 8px rgba(255, 0, 85, 0.5));
+        }
+
+        .logo-main-text {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #ffffff 50%, #ff0055 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .logo-sub-text {
+            font-size: 8px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 3px;
+            background: rgba(255, 0, 85, 0.9);
+            padding: 1px 4px;
+            border-radius: 2px;
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        /* ওটিটি স্টাইল সেন্টার প্লে বাটন */
+        .center-play-overlay {
+            position: absolute;
+            z-index: 12;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .center-play-btn {
+            width: 66px;
+            height: 66px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 50%;
+            color: #ffffff;
+            font-size: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            pointer-events: auto;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s, background 0.2s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .center-play-btn:hover {
+            background: var(--accent-glow);
+            border-color: transparent;
+            transform: scale(1);
+        }
+
+        .player-container.user-active .center-play-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* বটম স্লিম কন্ট্রোল লেআউট */
+        .bottom-controls-bar {
+            position: absolute;
+            bottom: 10px; /* ভিডিও ফ্রেমের একদম নিচে */
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; 
+            padding: 0 15px;
+            gap: 10px;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .player-container.user-active .bottom-controls-bar,
+        .player-container.user-active .top-overlay-layer {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .player-container.user-inactive { cursor: none; }
+
+        .control-action-btn {
+            background: var(--panel-glass);
+            border: 1px solid var(--border-glass);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .control-action-btn:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* স্লিম ভলিউম ক্লাস্টার */
+        .vol-cluster {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .vol-slider-bar {
+            -webkit-appearance: none;
+            width: 0px;
+            opacity: 0;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.2);
+            outline: none;
+            transition: width 0.3s, opacity 0.2s;
+        }
+        .vol-cluster:hover .vol-slider-bar, .vol-slider-bar:focus {
+            width: 65px;
+            opacity: 1;
+        }
+        .vol-slider-bar::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        /* আনমিউট অ্যালার্ট */
+        .unmute-overlay-hint {
+            position: absolute;
+            top: 70px;
+            background: rgba(255, 0, 85, 0.95);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 12;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 0, 85, 0.4);
+            display: none;
+        }
+
+        /* বাফারিং লোডার */
+        .buffer-loading-mask {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 15;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .buffer-loading-mask.active { opacity: 1; pointer-events: auto; }
+        .pulse-loader {
+            width: 45px;
+            height: 45px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-glow);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ওয়াটারমার্ক */
+        .dynamic-watermark {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            pointer-events: none;
+            z-index: 9;
+            user-select: none;
+            transition: all 2s ease-in-out;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* নোটিশ বার - ভিডিওর বাইরে নিচে নিয়ে আসা হয়েছে এবং আরও চিকন করা হয়েছে */
+        .tv-news-ticker {
+            width: 100%;
+            background: #090514;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            height: 26px; /* উচ্চতা আরও কমানো হলো */
+            display: flex;
+            align-items: center;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .ticker-label {
+            background: #ff0055;
+            color: #fff;
+            height: 100%;
+            padding: 0 8px;
+            font-size: 9px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+            z-index: 11;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .ticker-marquee { flex-grow: 1; overflow: hidden; white-space: nowrap; display: flex; align-items: center; }
+        .ticker-text { display: inline-block; font-size: 11px; color: rgba(255,255,255,0.9); padding-left: 100%; animation: ticker-move 12s linear infinite; }
+
+        @keyframes ticker-move {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        @media (max-width: 768px) {
+            .logo-main-text { font-size: 18px; }
+            .logo-sub-text { font-size: 7px; letter-spacing: 2px; }
+            .center-play-btn { width: 56px; height: 56px; font-size: 18px; }
+            .bottom-controls-bar { padding: 0 10px; }
+        }
+    </style>
 </head>
 <body>
 
-    <div class="dashboard-wrapper">
-        <div class="player-container user-active" id="deckContainer">
-            <div class="ui-layer">
-                <div class="channel-switcher">
-                    <button class="channel-btn active" onclick="loadChannel(0)">CH 01</button>
-                    <button class="channel-btn" onclick="loadChannel(1)">CH 02</button>
-                    <button class="channel-btn" onclick="loadChannel(2)">CH 03</button>
-                    <button class="channel-btn" onclick="loadChannel(3)">CH 04</button>
-                </div>
-                <div class="branding-tag"><h2 class="owner-name">Md Sabbir Hossain</h2></div>
-            </div>
+    <div class="dashboard-wrapper">
+        <!-- ওটিটি ব্লার অ্যাম্বিয়েন্ট ব্যাকগ্রাউন্ড -->
+        <div class="bg-blur-ambient" id="ambientBg"></div>
+        
+        <!-- ভিডিও প্লেয়ার ফ্রেম -->
+        <div class="player-container user-active" id="deckContainer">
+            
+            <!-- টপ বার (লোগো) -->
+            <div class="top-overlay-layer">
+                <div class="tv-channel-logo">
+                    <h1 class="logo-main-text">SR TV</h1>
+                    <span class="logo-sub-text">LIVE</span>
+                </div>
+            </div>
 
-            <div class="buffer-loading-mask" id="bufferMask"><div class="pulse-loader"></div></div>
-            <video id="coreVideo" playsinline crossorigin="anonymous" autoplay muted></video>
-        </div>
-    </div>
+            <!-- সেন্টার প্লে/পজ বাটন ওটিটি লেআউট -->
+            <div class="center-play-overlay">
+                <button class="center-play-btn" id="centerPlayBtn" title="Play/Pause"><i class="fas fa-play"></i></button>
+            </div>
 
-    <script>
-        const videoElement = document.getElementById('coreVideo');
-        const bufferMask = document.getElementById('bufferMask');
-        const streamSources = [
-            "https://backup.alarafatofficial.workers.dev/?url=https%3A%2F%2Fd1211whpimeups.cloudfront.net%2Fsmil%3Artbgo%2Fchunklist_b4096000_slENG.m3u8&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F124.0.0.0%20Safari%2F537.36&ekey=SPORTIX_SECURE_KEY_2026",
-            "https://backup.alarafatofficial.workers.dev/?url=https%3A%2F%2Fd1211whpimeups.cloudfront.net%2Fsmil%3Artbgo%2Fmedia-uauic9lzr_b4096000_slENG_4136.ts&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F124.0.0.0%20Safari%2F537.36&ekey=SPORTIX_SECURE_KEY_2026",
-            "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
-            "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8"
-        ];
+            <div class="unmute-overlay-hint" id="unmuteHint"><i class="fa-solid fa-volume-xmark"></i> TAP TO UNMUTE</div>
+            <div class="dynamic-watermark" id="secureWatermark">Md Sabbir Hossain</div>
 
-        let hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+            <div class="buffer-loading-mask" id="bufferMask">
+                <div class="pulse-loader"></div>
+            </div>
 
-        function loadChannel(index) {
-            document.querySelectorAll('.channel-btn').forEach((btn, i) => {
-                btn.classList.toggle('active', i === index);
-            });
-            bufferMask.classList.add('active');
-            hls.loadSource(streamSources[index]);
-            hls.attachMedia(videoElement);
-            videoElement.play().catch(() => {});
-        }
+            <!-- কোর ভিডিও ফ্রেম -->
+            <video id="coreVideo" playsinline crossorigin="anonymous" autoplay muted></video>
 
-        videoElement.addEventListener('playing', () => bufferMask.classList.remove('active'));
-        loadChannel(0);
-    </script>
+            <!-- স্লিম ওটিটি কন্ট্রোল বার -->
+            <div class="bottom-controls-bar">
+                <div class="vol-cluster">
+                    <button class="control-action-btn" id="masterMuteBtn"><i class="fas fa-volume-mute"></i></button>
+                    <input type="range" class="vol-slider-bar" id="masterVolSlider" min="0" max="1" step="0.05" value="0">
+                </div>
+                <button class="control-action-btn" id="masterFullscreenBtn"><i class="fas fa-expand"></i></button>
+            </div>
+
+        </div>
+
+        <!-- নোটিশ বার (এখন ভিডিওর বাইরে এবং অত্যন্ত ছোট) -->
+        <div class="tv-news-ticker">
+            <div class="ticker-label"><i class="fa-solid fa-satellite-dish" style="margin-right: 3px;"></i> LIVE</div>
+            <div class="ticker-marquee">
+                <div class="ticker-text">
+                    📢 Enjoy Free Live Stream by <b>Md Sabbir Hossain</b>!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const streamSrc = "https://backup.alarafatofficial.workers.dev/?url=https%3A%2F%2Fd1211whpimeups.cloudfront.net%2Fsmil%3Artbgo%2Fchunklist_b4096000_slENG.m3u8&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F124.0.0.0%20Safari%2F537.36&ekey=SPORTIX_SECURE_KEY_2026";
+        
+        const videoElement = document.getElementById('coreVideo');
+        const deckContainer = document.getElementById('deckContainer');
+        const ambientBg = document.getElementById('ambientBg');
+        const centerPlayBtn = document.getElementById('centerPlayBtn');
+        const masterMuteBtn = document.getElementById('masterMuteBtn');
+        const masterVolSlider = document.getElementById('masterVolSlider');
+        const masterFullscreenBtn = document.getElementById('masterFullscreenBtn');
+        const bufferMask = document.getElementById('bufferMask');
+        const secureWatermark = document.getElementById('secureWatermark');
+        const unmuteHint = document.getElementById('unmuteHint');
+
+        const defaultPoster = "https://images.unsplash.com/photo-1540747737956-378724044282?q=80&w=1920";
+        videoElement.poster = defaultPoster;
+        ambientBg.style.backgroundImage = `url('${defaultPoster}')`;
+
+        let activeEngineInstance = null;
+
+        if (Hls.isSupported()) {
+            activeEngineInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
+            activeEngineInstance.loadSource(streamSrc);
+            activeEngineInstance.attachMedia(videoElement);
+            activeEngineInstance.on(Hls.Events.MANIFEST_PARSED, () => { attemptAutoplay(); });
+        } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+            videoElement.src = streamSrc;
+            videoElement.addEventListener('loadedmetadata', attemptAutoplay);
+        }
+
+        function attemptAutoplay() {
+            videoElement.play().then(() => {
+                if(!videoElement.muted) {
+                    videoElement.volume = 1;
+                    masterVolSlider.value = 1;
+                    syncVolumeInterface();
+                } else { unmuteHint.style.display = 'block'; }
+            }).catch(() => {
+                videoElement.muted = true;
+                videoElement.play().then(() => { unmuteHint.style.display = 'block'; });
+            });
+        }
+
+        unmuteHint.addEventListener('click', (e) => {
+            e.stopPropagation();
+            videoElement.muted = false;
+            videoElement.volume = 1;
+            masterVolSlider.value = 1;
+            syncVolumeInterface();
+            unmuteHint.style.display = 'none';
+        });
+
+        let activityTimeout;
+        function resetActivityTimer() {
+            deckContainer.classList.remove('user-inactive');
+            deckContainer.classList.add('user-active');
+            clearTimeout(activityTimeout);
+            activityTimeout = setTimeout(() => {
+                if (!videoElement.paused) { 
+                    deckContainer.classList.remove('user-active');
+                    deckContainer.classList.add('user-inactive');
+                }
+            }, 3000);
+        }
+        deckContainer.addEventListener('mousemove', resetActivityTimer);
+        deckContainer.addEventListener('touchstart', resetActivityTimer);
+
+        function handlePlayToggle() {
+            if (videoElement.paused) {
+                videoElement.play().catch(() => {});
+            } else {
+                videoElement.pause();
+                resetActivityTimer();
+            }
+        }
+        centerPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); handlePlayToggle(); });
+        videoElement.addEventListener('click', handlePlayToggle);
+
+        videoElement.addEventListener('play', () => centerPlayBtn.innerHTML = '<i class="fas fa-pause"></i>');
+        videoElement.addEventListener('pause', () => centerPlayBtn.innerHTML = '<i class="fas fa-play"></i>');
+
+        masterVolSlider.addEventListener('input', (e) => {
+            videoElement.volume = e.target.value;
+            videoElement.muted = (videoElement.volume === 0);
+            syncVolumeInterface();
+        });
+
+        masterMuteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            videoElement.muted = !videoElement.muted;
+            if(!videoElement.muted && videoElement.volume === 0) videoElement.volume = 0.5;
+            syncVolumeInterface();
+        });
+
+        function syncVolumeInterface() {
+            masterMuteBtn.innerHTML = (videoElement.muted || videoElement.volume === 0) ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            masterVolSlider.value = videoElement.muted ? 0 : videoElement.volume;
+        }
+
+        masterFullscreenBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!document.fullscreenElement) { deckContainer.requestFullscreen().catch(() => {}); } else { document.exitFullscreen(); }
+        });
+
+        setInterval(() => {
+            secureWatermark.style.left = `${Math.floor(Math.random() * 55) + 20}%`;
+            secureWatermark.style.top = `${Math.floor(Math.random() * 40) + 25}%`;
+        }, 12000);
+
+        videoElement.addEventListener('waiting', () => bufferMask.classList.add('active'));
+        videoElement.addEventListener('playing', () => bufferMask.classList.remove('active'));
+    </script>
 </body>
-</html>
+ </html>
+thes code all okk add 2n channel https://backup.alarafatofficial.workers.dev/?url=https%3A%2F%2Fd1211whpimeups.cloudfront.net%2Fsmil%3Artbgo%2Fmedia-uauic9lzr_b4096000_slENG_4136.ts&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F124.0.0.0%20Safari%2F537.36&ekey=SPORTIX_SECURE_KEY_2026
