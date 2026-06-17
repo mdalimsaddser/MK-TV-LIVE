@@ -15,11 +15,12 @@
         .player-container { position: relative; width: 100%; max-height: calc(100vh - 26px); aspect-ratio: 16 / 9; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: contain; }
 
+        /* Updated UI for 4 Channels */
         .ui-layer { position: absolute; top: 15px; left: 15px; z-index: 20; display: flex; flex-direction: column; gap: 10px; opacity: 0; transition: opacity 0.3s; }
         .player-container.user-active .ui-layer { opacity: 1; }
         
-        .channel-switcher { display: flex; flex-wrap: wrap; gap: 6px; max-width: 300px; }
-        .channel-btn { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 8px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 9px; }
+        .channel-switcher { display: flex; flex-wrap: wrap; gap: 8px; max-width: 250px; }
+        .channel-btn { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 10px; }
         .channel-btn.active { background: var(--accent-glow); border-color: transparent; }
 
         .branding-tag { background: rgba(255,255,255,0.07); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); width: fit-content; }
@@ -41,7 +42,6 @@
                     <button class="channel-btn" onclick="loadChannel(1)">CH 02</button>
                     <button class="channel-btn" onclick="loadChannel(2)">CH 03</button>
                     <button class="channel-btn" onclick="loadChannel(3)">CH 04</button>
-                    <button class="channel-btn" onclick="loadChannel(4)">CH 05</button>
                 </div>
                 <div class="branding-tag"><h2 class="owner-name">Md Sabbir Hossain</h2></div>
             </div>
@@ -58,8 +58,7 @@
             "https://backup.alarafatofficial.workers.dev/?url=https%3A%2F%2Fd1211whpimeups.cloudfront.net%2Fsmil%3Artbgo%2Fchunklist_b4096000_slENG.m3u8&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F124.0.0.0%20Safari%2F537.36&ekey=SPORTIX_SECURE_KEY_2026",
             "https://backup.alarafatofficial.workers.dev/?url=https%3A%2F%2Fd1211whpimeups.cloudfront.net%2Fsmil%3Artbgo%2Fmedia-uauic9lzr_b4096000_slENG_4136.ts&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F124.0.0.0%20Safari%2F537.36&ekey=SPORTIX_SECURE_KEY_2026",
             "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
-            "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
-            "https://live05.msdht.app/live/24561735.m3u8"
+            "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8"
         ];
 
         let hls = new Hls({ enableWorker: true, lowLatencyMode: true });
