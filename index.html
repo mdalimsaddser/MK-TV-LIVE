@@ -3,57 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR TV - Professional Multi-Channel Deck</title>
+    <title>SR TV - Professional Live Deck</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root { --accent-glow: #ff0055; --bg-dark: #050508; --text-main: #f5f5fa; }
-        body { margin: 0; background: #000; color: var(--text-main); font-family: system-ui, sans-serif; overflow: hidden; }
-        .dashboard-wrapper { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        :root { --accent-glow: #ff0055; --bg-dark: #050508; }
+        body { margin: 0; background: #000; color: #fff; font-family: system-ui, sans-serif; }
+        .player-container { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         
-        .player-container { position: relative; width: 100%; max-height: calc(100vh - 26px); aspect-ratio: 16 / 9; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: contain; }
 
-        .ui-layer { position: absolute; top: 15px; left: 15px; z-index: 20; display: flex; flex-direction: column; gap: 10px; opacity: 0; transition: opacity 0.3s; }
-        .player-container.user-active .ui-layer { opacity: 1; }
-        
-        .channel-switcher { display: flex; flex-wrap: wrap; gap: 6px; max-width: 300px; }
-        .channel-btn { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 8px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 9px; }
+        .ui-layer { position: absolute; top: 20px; left: 20px; z-index: 20; display: flex; flex-direction: column; gap: 10px; }
+        .channel-switcher { display: flex; gap: 8px; flex-wrap: wrap; }
+        .channel-btn { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 11px; transition: 0.3s; }
         .channel-btn.active { background: var(--accent-glow); border-color: transparent; }
 
-        .branding-tag { background: rgba(255,255,255,0.07); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); width: fit-content; }
-        .owner-name { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; color: #fff; text-shadow: 0 0 8px rgba(255,0,85,0.8); }
+        /* Sound Fix Overlay */
+        .unmute-overlay { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); cursor: pointer; }
+        .unmute-btn { padding: 15px 30px; background: var(--accent-glow); border-radius: 50px; font-weight: bold; font-size: 18px; border: none; color: white; box-shadow: 0 0 20px var(--accent-glow); }
 
         .buffer-loading-mask { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 15; opacity: 0; pointer-events: none; }
         .buffer-loading-mask.active { opacity: 1; }
-        .pulse-loader { width: 45px; height: 45px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--accent-glow); border-radius: 50%; animation: spin 0.7s linear infinite; }
+        .pulse-loader { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent-glow); border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-wrapper">
-        <div class="player-container user-active" id="deckContainer">
-            <div class="ui-layer">
-                <div class="channel-switcher">
-                    <button class="channel-btn active" onclick="loadChannel(0)">CH 01</button>
-                    <button class="channel-btn" onclick="loadChannel(1)">CH 02</button>
-                    <button class="channel-btn" onclick="loadChannel(2)">CH 03</button>
-                    <button class="channel-btn" onclick="loadChannel(3)">CH 04</button>
-                    <button class="channel-btn" onclick="loadChannel(4)">CH 05</button>
-                </div>
-                <div class="branding-tag"><h2 class="owner-name">Md Sabbir Hossain</h2></div>
+    <div class="player-container" id="deckContainer">
+        <div class="ui-layer">
+            <div class="channel-switcher">
+                <button class="channel-btn active" onclick="loadChannel(0)">CH 01</button>
+                <button class="channel-btn" onclick="loadChannel(1)">CH 02</button>
+                <button class="channel-btn" onclick="loadChannel(2)">CH 03</button>
+                <button class="channel-btn" onclick="loadChannel(3)">CH 04</button>
+                <button class="channel-btn" onclick="loadChannel(4)">CH 05</button>
             </div>
-
-            <div class="buffer-loading-mask" id="bufferMask"><div class="pulse-loader"></div></div>
-            <video id="coreVideo" playsinline crossorigin="anonymous" autoplay muted></video>
         </div>
+
+        <div class="unmute-overlay" id="unmuteOverlay">
+            <button class="unmute-btn">TAP TO PLAY SOUND</button>
+        </div>
+
+        <div class="buffer-loading-mask" id="bufferMask"><div class="pulse-loader"></div></div>
+        <video id="coreVideo" playsinline autoplay muted></video>
     </div>
 
     <script>
         const videoElement = document.getElementById('coreVideo');
         const bufferMask = document.getElementById('bufferMask');
+        const unmuteOverlay = document.getElementById('unmuteOverlay');
+        
         const streamSources = [
             "https://backup.alarafatofficial.workers.dev/?url=https%3A%2F%2Fd1211whpimeups.cloudfront.net%2Fsmil%3Artbgo%2Fchunklist_b4096000_slENG.m3u8&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F124.0.0.0%20Safari%2F537.36&ekey=SPORTIX_SECURE_KEY_2026",
             "https://backup.alarafatofficial.workers.dev/?url=https%3A%2F%2Fd1211whpimeups.cloudfront.net%2Fsmil%3Artbgo%2Fmedia-uauic9lzr_b4096000_slENG_4136.ts&ua=Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F124.0.0.0%20Safari%2F537.36&ekey=SPORTIX_SECURE_KEY_2026",
@@ -61,6 +62,43 @@
             "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
             "https://live05.msdht.app/live/24561735.m3u8"
         ];
+
+        let hls = new Hls({ 
+            enableWorker: true, 
+            lowLatencyMode: true,
+            backBufferLength: 30 
+        });
+
+        function loadChannel(index) {
+            document.querySelectorAll('.channel-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            bufferMask.classList.add('active');
+            hls.loadSource(streamSources[index]);
+            hls.attachMedia(videoElement);
+            videoElement.play().catch(() => {});
+        }
+
+        // Handle User Interaction for Audio
+        unmuteOverlay.addEventListener('click', () => {
+            videoElement.muted = false;
+            unmuteOverlay.style.display = 'none';
+        });
+
+        // Error Recovery
+        hls.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal) {
+                hls.destroy();
+                loadChannel(0); // Auto-recover to CH 01 on error
+            }
+        });
+
+        videoElement.addEventListener('playing', () => bufferMask.classList.remove('active'));
+        
+        loadChannel(0);
+    </script>
+</body>
+</html>        ];
 
         let hls = new Hls({ enableWorker: true, lowLatencyMode: true });
 
