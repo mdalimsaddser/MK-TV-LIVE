@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR TV - VIP Live TV Deck</title>
-    <!-- Hls.js Streaming Engine -->
+    <title>SR TV - VIP Live TV Deck (Advanced)</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
-    <!-- FontAwesome Pro UI Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -37,20 +35,17 @@
             overflow: hidden;
         }
 
-        /* প্রধান কন্টেইনার ফ্লেক্সিবল করা হলো যাতে নোটিশ নিচে থাকে */
         .dashboard-wrapper {
             width: 100vw;
             height: 100vh;
             position: relative;
             background: #000;
             display: flex;
-            flex-direction: column; /* এলিমেন্টগুলো উপর-নিচ করে সাজানো */
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
             overflow: hidden;
         }
 
-        /* ব্যাকগ্রাউন্ড অ্যাম্বিয়েন্ট ব্লার */
+        /* Ambient Blur Background */
         .bg-blur-ambient {
             position: absolute;
             inset: -20px;
@@ -62,18 +57,31 @@
             pointer-events: none;
         }
 
-        /* ১৬:৯ প্লেয়ার কন্টেইনার */
+        /* Main Content Layout */
+        .content-area {
+            display: flex;
+            flex: 1;
+            z-index: 2;
+            width: 100%;
+            height: calc(100vh - 40px);
+        }
+
+        /* Video Section */
+        .video-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+        }
+
+        /* 16:9 Player Container */
         .player-container {
             position: relative;
-            width: 100%;
-            max-height: calc(100vh - 28px); /* নোটিশ বারের জায়গা বাদ দেওয়া হলো */
-            aspect-ratio: 16 / 9;
-            z-index: 2;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.85);
-            overflow: hidden;
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.85);
         }
 
         video {
@@ -84,13 +92,233 @@
             background: transparent;
         }
 
-        video::-webkit-media-controls { display: none !important; }
+        /* Advanced Controls Bar */
+        .advanced-controls {
+            height: 60px;
+            background: rgba(5, 5, 8, 0.9);
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 5;
+        }
 
-        /* লোগো লেয়ার */
+        .control-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-action, select {
+            background: var(--panel-glass);
+            color: var(--text-main);
+            border: 1px solid var(--border-glass);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .btn-action:hover, select:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-neon);
+        }
+
+        select option {
+            background: var(--bg-dark);
+            color: white;
+        }
+
         .top-overlay-layer {
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: var(--panel-glass);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(10px);
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Channel List Sidebar */
+        .sidebar {
+            width: 350px;
+            background: rgba(10, 10, 15, 0.8);
+            border-left: 1px solid var(--border-glass);
+            backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+            z-index: 3;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-glass);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-glow);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .search-box {
+            width: 100%;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-glass);
+            color: white;
+            padding: 10px 15px 10px 35px;
+            border-radius: 5px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-glow);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        .channel-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .channel-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .channel-item:hover, .channel-item.active {
+            background: var(--panel-glass);
+            border-left: 4px solid var(--accent-glow);
+        }
+
+        /* Notice Bar */
+        .notice-bar {
+            height: 40px;
+            background: var(--accent-neon);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            z-index: 5;
+            box-shadow: 0 -5px 20px rgba(139, 0, 255, 0.4);
+        }
+
+        marquee {
+            width: 100%;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+        }
+
+        /* Loading Spinner */
+        #loader {
+            position: absolute;
+            color: white;
+            font-size: 2rem;
+            z-index: 100;
+            display: none;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-glow); }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-wrapper">
+        <div class="bg-blur-ambient" id="bg-blur"></div>
+        
+        <div class="content-area">
+            
+            <div class="video-section">
+                <div class="player-container">
+                    <div class="top-overlay-layer">SR TV VIP</div>
+                    <i id="loader" class="fa-solid fa-circle-notch fa-spin"></i>
+                    <video id="video-player" controls autoplay></video>
+                </div>
+                
+                <div class="advanced-controls">
+                    <div class="control-group">
+                        <span id="current-channel-name" style="font-weight: bold; color: var(--accent-glow);">No Channel Selected</span>
+                    </div>
+                    <div class="control-group">
+                        <select id="quality-selector" onchange="changeQuality(this.value)">
+                            <option value="-1">Auto Quality</option>
+                        </select>
+                        <button class="btn-action" onclick="togglePiP()" title="Picture in Picture">
+                            <i class="fa-solid fa-clone"></i> PiP Mode
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <div><i class="fa-solid fa-tv"></i> Live Channels (<span id="channel-count">0</span>)</div>
+                    <div class="search-box">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search channels..." onkeyup="filterChannels()">
+                    </div>
+                </div>
+                <ul class="channel-list" id="channel-list">
+                    <li class="channel-item" style="justify-content: center; opacity: 0.5;">Loading Playlists...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="notice-bar">
+            <marquee>Welcome to SR TV VIP Deck. Advanced Features Enabled: Search, HLS Quality Selection, and Picture-in-Picture.</marquee>
+        </div>
+    </div>
+
+    <script>
+        const PLAYLISTS = [
+            "https://raw.githubusercontent.com/bdtechexpert/live-tv-playlist/refs/heads/main/live-tv-playlist.m3u",
+            "https://raw.githubusercontent.com/abusaeeidx/Mrgify-Tv/refs/heads/main/playlist.m3u",
+            "https://raw.githubusercontent.com/abusaeeidx/Ayna-BDIX-IPTV-Playlist/refs/heads/main/ayna-playlist.m3u",    
+            "https://raw.githubusercontent.com/abusaeeidx/T-Sports-Playlist-Auto-Update/refs/heads/main/combine_playlist.m3u",
+            "https://raw.githubusercontent.com/v5on/filoox-bdix-selected/refs/heads/main/playlist.m3u"
+        ];
+
+        let allChannels = [];
+        const video = document.getElementById('video-player');
+        const channelListEl = document.getElementById('channel-list');
+        const loader = document.getElementById('loader');
+        const qualitySelector = document.getElementById('quality-selector');
+        let            left: 15px;
             right: 15px;
             display: flex;
             justify-content: flex-end;
