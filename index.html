@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-    <title>LiveKhela - Premium Live ATV</title>
+    <title>LiveKhela - Pro ATV Streaming Platform</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,6 @@
 
     <style>
         :root {
-            /* Ultra-Premium Dark Theme */
             --bg-body: #050505;
             --bg-sidebar: #0a0a0a;
             --bg-header: #0a0a0a;
@@ -42,6 +41,11 @@
         * { box-sizing: border-box; outline: none; transition: background 0.2s, border 0.2s, color 0.2s; margin: 0; padding: 0; }
         body { background: var(--bg-body); color: var(--text-main); font-family: var(--font-family); -webkit-font-smoothing: antialiased; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
+        /* --- Global Notice / Ads Banner --- */
+        .global-notice-bar { background: linear-gradient(90deg, #ef4444, #e11d48); color: #fff; text-align: center; font-weight: 700; font-size: 14px; padding: 8px 20px; display: none; z-index: 9999; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5); border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .global-notice-bar.active { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .global-notice-bar i { animation: blink 1s infinite alternate; }
+
         /* --- Glassmorphism Top Navigation --- */
         .top-navbar { height: var(--header-height); background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 50; }
         .nav-left { display: flex; align-items: center; gap: 20px; }
@@ -58,7 +62,6 @@
         .nav-right { display: flex; align-items: center; gap: 16px; }
         .nav-icon-btn { background: transparent; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; position: relative; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;}
         .nav-icon-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
-        .nav-icon-btn .badge { position: absolute; top: 4px; right: 4px; background: var(--brand); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 4px; border-radius: 10px; border: 2px solid var(--bg-header); }
         
         /* Advanced Dynamic Profile */
         .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; background: rgba(255,255,255,0.03); padding: 4px 12px 4px 4px; border-radius: 24px; border: 1px solid var(--border); transition: all 0.2s;}
@@ -66,10 +69,25 @@
         .user-profile img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
         .user-profile .role { font-size: 12px; font-weight: 700; color: var(--text-muted); max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
+        .admin-dashboard-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99999; backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; }
+        .admin-dashboard-modal.active { display: flex; }
+        .admin-panel-container { background: #121212; border: 1px solid var(--border-highlight); border-radius: 16px; width: 90%; max-width: 600px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); display: flex; flex-direction: column; gap: 20px; }
+        .admin-panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .admin-panel-header h2 { font-size: 18px; font-weight: 800; color: var(--admin); display: flex; align-items: center; gap: 8px; }
+        .close-admin-btn { background: transparent; border: none; color: #fff; font-size: 20px; cursor: pointer; }
+        .admin-section { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+        .admin-section h3 { font-size: 13px; font-weight: 700; margin-bottom: 12px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+        .admin-input { width: 100%; background: #000; border: 1px solid var(--border); color: #fff; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
+        .admin-input:focus { border-color: var(--admin); }
+        .admin-btn { background: var(--admin); color: #000; border: none; font-weight: 700; padding: 10px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .admin-btn:hover { background: #d97706; }
+        .admin-btn.danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .admin-btn.danger:hover { background: var(--danger); color: #fff; }
+        .admin-row { display: flex; gap: 10px; }
+
         /* --- Main Workspace --- */
         .workspace { display: flex; flex: 1; height: calc(100vh - var(--header-height)); overflow: hidden; }
 
-        /* --- Left Sidebar (Channels) --- */
         .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; flex-shrink: 0;}
         .channel-list-container { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
         .list-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 8px 12px 8px; }
@@ -96,7 +114,6 @@
         .loader-overlay.active { opacity: 1; }
         .spinner { border: 3px solid rgba(255,255,255,0.05); border-top: 3px solid var(--brand); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
 
-        /* --- Advanced Hover Player Overlay UI --- */
         .video-container:hover .player-overlay-controls { opacity: 1; }
         .player-overlay-controls { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 20px; display: flex; flex-direction: column; gap: 12px; opacity: 0; transition: opacity 0.3s ease; z-index: 10; }
         
@@ -112,7 +129,6 @@
         .overlay-btn { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; opacity: 0.8; transition: opacity 0.2s, transform 0.1s; }
         .overlay-btn:hover { opacity: 1; transform: scale(1.1); }
         
-        /* Glassmorphism Real-Time Display */
         .time-display { font-size: 12px; font-weight: 500; color: #fff; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);}
         .live-badge { color: var(--brand); font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 4px;}
         .clock-display { font-family: monospace; font-weight: 700; font-size: 13px; letter-spacing: 0.5px;}
@@ -126,36 +142,23 @@
         .meta-logo { width: 48px; height: 48px; border-radius: 50%; background: var(--bg-input); display: flex; justify-content: center; align-items: center; overflow: hidden; border: 1px solid var(--border);}
         .meta-logo img { max-width: 100%; border-radius: 50%; }
         .meta-info h2 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;}
-        .meta-info h2 i { color: var(--user); font-size: 12px; }
         .meta-info p { font-size: 12px; color: var(--text-muted); }
-        
-        .subscribe-btn { background: #fff; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; margin-left: 12px; transition: background 0.2s;}
+        .subscribe-btn { background: #fff; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; margin-left: 12px;}
         .subscribe-btn:hover { background: #e5e7eb; }
-
         .meta-right { display: flex; gap: 10px; }
         .action-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;}
         .action-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--border-highlight); }
 
-        /* --- Right Sidebar (Advanced Real Chat) --- */
+        /* --- Right Sidebar (Chat) --- */
         .chat-panel { width: 340px; background: var(--bg-chat); border-left: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; flex-shrink: 0;}
         .chat-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(10,10,10,0.5); backdrop-filter: blur(10px);}
         .chat-header h3 { font-size: 13px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px;}
         
-        /* Advanced HIDDEN Admin Controls */
-        .admin-controls { display: none; background: rgba(251, 191, 36, 0.05); padding: 8px 16px; border-bottom: 1px solid rgba(251, 191, 36, 0.1); justify-content: space-between; align-items: center;}
-        body.admin-mode .admin-controls { display: flex; } /* Shows only when unlocked */
-        .admin-controls span { color: var(--admin); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;}
-        .clear-chat-btn { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; cursor: pointer;}
-        .clear-chat-btn:hover { background: var(--danger); color: #fff; }
-
         .chat-messages { flex: 1; overflow-y: auto; padding: 16px 12px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; scroll-behavior: smooth;}
         .chat-msg { line-height: 1.5; word-wrap: break-word; padding: 4px 8px; border-radius: 6px; transition: background 0.2s;}
         .chat-msg:hover { background: rgba(255,255,255,0.02); }
-        
-        /* Dynamic Badges */
         .chat-msg .badge.admin { background: rgba(251, 191, 36, 0.15); color: var(--admin); border: 1px solid rgba(251, 191, 36, 0.3); font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-right: 6px; font-weight: 800;}
         .chat-msg .badge.user { background: rgba(59, 130, 246, 0.15); color: var(--user); border: 1px solid rgba(59, 130, 246, 0.3); font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-right: 6px; font-weight: 800;}
-        
         .chat-msg .user-name { font-weight: 700; color: #a1a1aa; margin-right: 6px; }
         .chat-msg.admin-msg .user-name { color: var(--admin); }
         .chat-msg .text { color: #e4e4e7; }
@@ -168,21 +171,17 @@
         .chat-input-wrapper button { background: transparent; border: none; color: var(--brand); padding: 0 16px; cursor: pointer; font-weight: 700; font-size: 16px;}
         .chat-input-wrapper button:hover { color: var(--brand-hover); }
 
-        /* Cinema & Theater Modes */
-        body.cinema-mode .top-navbar,
-        body.cinema-mode .sidebar,
-        body.cinema-mode .chat-panel,
-        body.cinema-mode .channel-details-section { display: none !important; }
-        body.cinema-mode .workspace { height: 100vh; }
-        body.cinema-mode .center-content { background: #000; justify-content: center; }
-        body.cinema-mode .player-wrapper { border: none; }
-        body.cinema-mode .video-container { max-width: 100vw; height: 100vh; }
-        
-        body.theater-mode .sidebar { display: none; }
-        body.theater-mode .center-content { background: #000; }
-        body.theater-mode .video-container { max-width: 100%; height: calc(100vh - var(--header-height) - 120px); }
+        /* Live Poll / Voting Styles */
+        .live-poll-container { background: rgba(11, 132, 255, 0.05); border-bottom: 1px solid var(--border); padding: 16px; display: none; flex-direction: column; gap: 10px; }
+        .live-poll-container.active { display: flex; }
+        .poll-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 800; color: var(--brand); text-transform: uppercase; letter-spacing: 0.5px;}
+        .poll-question { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; line-height: 1.3;}
+        .poll-option-btn { background: var(--bg-input); border: 1px solid var(--border); color: #fff; padding: 10px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left; display: flex; justify-content: space-between; position: relative; overflow: hidden; z-index: 1;}
+        .poll-option-btn:hover { border-color: var(--brand); }
+        .poll-progress-bg { position: absolute; left: 0; top: 0; height: 100%; background: rgba(11, 132, 255, 0.25); z-index: -1; transition: width 0.5s ease; width: 0%; border-right: 2px solid var(--brand);}
+        .poll-total-votes { font-size: 11px; color: var(--text-muted); text-align: right; margin-top: 4px; font-weight: 600;}
 
-        /* Toasts */
+        /* Toasts & Animations */
         .toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: rgba(18, 18, 18, 0.95); color: #fff; padding: 12px 24px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.8); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 12px; animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; backdrop-filter: blur(10px);}
         .toast i { color: var(--brand); font-size: 16px; }
@@ -191,6 +190,16 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        /* Cinema & Theater Modes */
+        body.cinema-mode .top-navbar, body.cinema-mode .sidebar, body.cinema-mode .chat-panel, body.cinema-mode .channel-details-section { display: none !important; }
+        body.cinema-mode .workspace { height: 100vh; }
+        body.cinema-mode .center-content { background: #000; justify-content: center; }
+        body.cinema-mode .player-wrapper { border: none; }
+        body.cinema-mode .video-container { max-width: 100vw; height: 100vh; }
+        body.theater-mode .sidebar { display: none; }
+        body.theater-mode .center-content { background: #000; }
+        body.theater-mode .video-container { max-width: 100%; height: calc(100vh - var(--header-height) - 120px); }
 
         /* Responsive */
         @media (max-width: 1100px) {
@@ -202,35 +211,40 @@
             .sidebar.active { transform: translateX(0); box-shadow: 10px 0 40px rgba(0,0,0,0.8); }
             .nav-center { display: none; }
             .meta-row { flex-direction: column; }
-            .meta-right { width: 100%; justify-content: flex-start; }
             body.theater-mode .video-container { height: auto; aspect-ratio: 16/9; }
         }
     </style>
 </head>
 <body>
 
+<!-- Active Global Notice/Ad Banner -->
+<div id="globalNoticeBar" class="global-notice-bar">
+    <i class="fa fa-bullhorn"></i> <span id="noticeTextDisplay">Welcome to LiveKhela!</span> <i class="fa fa-bolt"></i>
+</div>
+
 <header class="top-navbar">
     <div class="nav-left">
         <button class="nav-icon-btn d-md-none" id="mobileMenuBtn" style="display: none;"><i class="fa fa-bars"></i></button>
         <div class="brand-logo">
-            <i class="fa fa-play"></i> LiveKhela <span class="atv-badge">BETA</span>
+            <i class="fa fa-play"></i> LiveKhela <span class="atv-badge">PRO</span>
         </div>
     </div>
     
     <div class="nav-center">
         <div class="search-wrapper">
             <i class="fa fa-search"></i>
-            <input type="text" id="channelSearch" class="search-input" placeholder="Search streams, games, channels...">
+            <input type="text" id="channelSearch" class="search-input" placeholder="Search streams, channels...">
         </div>
     </div>
 
     <div class="nav-right">
-        <button class="nav-icon-btn" title="Create Stream"><i class="fa fa-video"></i></button>
-        <button class="nav-icon-btn" title="Notifications"><i class="fa fa-bell"></i><span class="badge">1</span></button>
-        <button class="nav-icon-btn" id="chatToggleBtn" onclick="toggleChat()" title="Toggle Chat" style="display: none;"><i class="fa fa-comments"></i></button>
+        <!-- Hidden Admin Toggle Button (Shows only to logged-in admin) -->
+        <button class="nav-icon-btn" id="adminToggleBtn" style="display: none; color: var(--admin);" onclick="openAdminModal()" title="Open Admin Dashboard"><i class="fa fa-cogs"></i></button>
         
-        <!-- SECURE DYNAMIC PROFILE (Click to unlock admin) -->
-        <div class="user-profile" onclick="triggerAdminLogin()" title="Click to verify Admin">
+        <button class="nav-icon-btn d-lg-none" id="chatToggleBtn" onclick="toggleChat()"><i class="fa fa-comments"></i></button>
+        
+        <!-- Profile Click for Security Login -->
+        <div class="user-profile" onclick="triggerAdminLogin()" title="Click to login as Admin">
             <img src="https://ui-avatars.com/api/?name=Guest&background=1a1a1a&color=fff" alt="Profile" id="userProfileImg">
             <span class="role" id="userRoleText">Guest</span>
         </div>
@@ -264,7 +278,7 @@
                             <button class="overlay-btn" onclick="togglePlay()" title="Play/Pause (Space)"><i class="fa fa-play" id="overlayPlayIcon"></i></button>
                             <button class="overlay-btn" onclick="toggleMute()" title="Mute/Unmute (M)"><i class="fa fa-volume-up" id="overlayMuteIcon"></i></button>
                             
-                            <!-- ADVANCED TIME & DURATION DISPLAY -->
+                            <!-- Real-Time Clocks -->
                             <div class="time-display">
                                 <span class="live-badge"><i class="fa fa-circle" style="font-size: 6px; animation: blink 1s infinite alternate;"></i> LIVE</span>
                                 <span class="clock-display" id="system-clock">00:00:00</span>
@@ -291,7 +305,7 @@
                 <div class="meta-left">
                     <div class="meta-logo" id="meta-logo"><i class="fa fa-tv text-muted fa-2x"></i></div>
                     <div class="meta-info">
-                        <h2 id="meta-channel-name">LiveKhela ATV <i class="fa fa-check-circle" title="Verified"></i></h2>
+                        <h2 id="meta-channel-name">LiveKhela ATV <i class="fa fa-check-circle" style="color:var(--user); font-size:12px;"></i></h2>
                         <p>
                             <span style="color: var(--brand); font-weight: 600;">LIVE</span> • 
                             <span id="meta-viewers" style="font-weight: 700; color: #fff;">0.0K</span> <span style="color: var(--text-muted);">watching now</span>
@@ -301,8 +315,7 @@
                 </div>
                 <div class="meta-right">
                     <button class="action-btn" onclick="showToast('<i class=\'fa fa-heart\'></i> Loved it!')"><i class="fa fa-heart-o"></i> React</button>
-                    <button class="action-btn" onclick="showToast('<i class=\'fa fa-link\'></i> Link copied to clipboard')"><i class="fa fa-share"></i> Share</button>
-                    <button class="action-btn"><i class="fa fa-ellipsis-h"></i></button>
+                    <button class="action-btn" onclick="showToast('<i class=\'fa fa-link\'></i> Link copied')"><i class="fa fa-share"></i> Share</button>
                 </div>
             </div>
         </div>
@@ -314,11 +327,16 @@
             <h3>Live Chat Room</h3>
             <button class="nav-icon-btn d-lg-none" onclick="toggleChat()"><i class="fa fa-times"></i></button>
         </div>
-        
-        <!-- SECURE ADMIN CONTROLS (Hidden from normal users) -->
-        <div class="admin-controls">
-            <span><i class="fa fa-shield-alt"></i> Admin Tools</span>
-            <button class="clear-chat-btn" onclick="adminClearChat()"><i class="fa fa-trash"></i> Clear Chat</button>
+
+        <!-- LIVE POLL UI FOR USERS -->
+        <div id="livePollUI" class="live-poll-container">
+            <div class="poll-header">
+                <span><i class="fa fa-chart-pie"></i> Live Poll</span>
+                <span id="pollStatusBadge" class="badge live" style="background:var(--danger);color:#fff;padding:2px 6px;border-radius:4px;font-size:9px;">ACTIVE</span>
+            </div>
+            <div class="poll-question" id="pollQuestionText">Loading question...</div>
+            <div id="pollOptionsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            <div class="poll-total-votes" id="pollTotalVotes">Total Votes: 0</div>
         </div>
 
         <div class="chat-messages" id="chatBox">
@@ -333,6 +351,58 @@
     </aside>
 </div>
 
+<!-- HIDDEN ADVANCED ADMIN DASHBOARD -->
+<div class="admin-dashboard-modal" id="adminDashboardModal">
+    <div class="admin-panel-container">
+        <div class="admin-panel-header">
+            <h2><i class="fa fa-shield-alt"></i> SuperAdmin Control Center</h2>
+            <button class="close-admin-btn" onclick="closeAdminModal()"><i class="fa fa-times"></i></button>
+        </div>
+
+        <!-- Add Channel Section -->
+        <div class="admin-section">
+            <h3><i class="fa fa-plus-circle"></i> Add / Update Live Channel</h3>
+            <div class="admin-row">
+                <input type="text" id="adminChId" class="admin-input" placeholder="Channel ID (e.g. atv_sports)" style="flex: 1;">
+                <input type="text" id="adminChTitle" class="admin-input" placeholder="Channel Title" style="flex: 2;">
+            </div>
+            <input type="text" id="adminChUrl" class="admin-input" placeholder="M3U8 Stream URL (Required)">
+            <input type="text" id="adminChLogo" class="admin-input" placeholder="Logo Image URL (Optional)">
+            <button class="admin-btn" onclick="adminAddChannel()"><i class="fa fa-save"></i> Save & Broadcast Channel</button>
+        </div>
+
+        <!-- Global Ad/Notice Section -->
+        <div class="admin-section">
+            <h3><i class="fa fa-bullhorn"></i> Global Ads & Notice System</h3>
+            <input type="text" id="adminNoticeText" class="admin-input" placeholder="Enter Advertisement or Notice Message to show to everyone...">
+            <div class="admin-row">
+                <button class="admin-btn" onclick="adminBroadcastNotice()" style="flex: 1; justify-content: center;"><i class="fa fa-paper-plane"></i> Broadcast Notice</button>
+                <button class="admin-btn danger" onclick="adminClearNotice()"><i class="fa fa-trash"></i> Remove Notice</button>
+            </div>
+        </div>
+
+        <!-- ADMIN LIVE POLL SECTION -->
+        <div class="admin-section">
+            <h3><i class="fa fa-chart-pie"></i> Live Voting / Poll Management</h3>
+            <input type="text" id="adminPollQuestion" class="admin-input" placeholder="Poll Question (e.g. Who will win today?)">
+            <div class="admin-row">
+                <input type="text" id="adminPollOpt1" class="admin-input" placeholder="Option 1" style="flex: 1;">
+                <input type="text" id="adminPollOpt2" class="admin-input" placeholder="Option 2" style="flex: 1;">
+            </div>
+            <div class="admin-row">
+                <button class="admin-btn" onclick="adminStartPoll()" style="flex: 1; justify-content: center;"><i class="fa fa-play"></i> Start Poll</button>
+                <button class="admin-btn danger" onclick="adminEndPoll()"><i class="fa fa-stop"></i> End Poll</button>
+            </div>
+        </div>
+
+        <!-- Chat Management -->
+        <div class="admin-section">
+            <h3><i class="fa fa-comments"></i> Chat Moderation</h3>
+            <button class="admin-btn danger" onclick="adminClearChat()"><i class="fa fa-ban"></i> Wipe Global Chat History</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -343,33 +413,40 @@
 <script>
     // --- Identity & Auth Management ---
     let currentUserRole = "user";
-    // Generate random guest name
     let currentUserName = "Guest_" + Math.floor(Math.random() * 9000 + 1000);
     document.getElementById('userRoleText').textContent = currentUserName;
 
     function triggerAdminLogin() {
         if(currentUserRole === "admin") {
-            showToast("You are already an Admin.");
+            openAdminModal();
             return;
         }
-        const pin = prompt("Admin Security: Enter PIN to unlock dashboard (Hint: 1234)");
-        if(pin === "1234") {
+        // ADVANCED ADMIN PASSWORD
+        const pin = prompt("Admin Security: Enter Password to unlock dashboard");
+        if(pin === "Ssabbir") {
             currentUserRole = "admin";
             currentUserName = "SuperAdmin";
             
             // UI Updates for Admin
-            document.body.classList.add('admin-mode'); // Unlocks .admin-controls CSS
+            document.body.classList.add('admin-mode');
             document.getElementById('userProfileImg').src = "https://ui-avatars.com/api/?name=Admin&background=fbbf24&color=000&bold=true";
             document.getElementById('userRoleText').textContent = "Admin";
             document.getElementById('userRoleText').style.color = "var(--admin)";
             document.getElementById('chatInput').placeholder = "Send message as Admin...";
             
+            // Show Admin Button
+            document.getElementById('adminToggleBtn').style.display = 'block';
+            
             showToast("<i class='fa fa-unlock'></i> Admin Dashboard Unlocked!");
+            openAdminModal();
         } else if (pin !== null) {
-            showToast("<i class='fa fa-times-circle'></i> Access Denied. Invalid PIN.");
+            showToast("<i class='fa fa-times-circle'></i> Access Denied. Invalid Password.");
         }
     }
 
+    // Modal Handlers
+    function openAdminModal() { document.getElementById('adminDashboardModal').classList.add('active'); }
+    function closeAdminModal() { document.getElementById('adminDashboardModal').classList.remove('active'); }
 
     // --- Firebase Initialization ---
     const firebaseConfig = {
@@ -384,6 +461,175 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
+    // --- ADMIN ACTIONS (Add Channel, Global Notice, Clear Chat) ---
+    
+    function adminAddChannel() {
+        if(currentUserRole !== "admin") return;
+        const id = document.getElementById('adminChId').value.trim();
+        const title = document.getElementById('adminChTitle').value.trim();
+        const url = document.getElementById('adminChUrl').value.trim();
+        const logo = document.getElementById('adminChLogo').value.trim();
+
+        if(!id || !title || !url) {
+            showToast("Error: ID, Title, and URL are required!");
+            return;
+        }
+
+        const newChannel = { id: id, title: title, url: url, type: "hls", logo: logo };
+        
+        database.ref('channels/' + id).set(newChannel).then(() => {
+            showToast("<i class='fa fa-check'></i> Channel Added/Updated Successfully!");
+            document.getElementById('adminChId').value = "";
+            document.getElementById('adminChTitle').value = "";
+            document.getElementById('adminChUrl').value = "";
+            document.getElementById('adminChLogo').value = "";
+        }).catch(e => showToast("Error adding channel."));
+    }
+
+    function adminBroadcastNotice() {
+        if(currentUserRole !== "admin") return;
+        const text = document.getElementById('adminNoticeText').value.trim();
+        if(!text) return;
+        
+        database.ref('system_notice').set({
+            text: text,
+            active: true,
+            timestamp: Date.now()
+        }).then(() => showToast("Notice Broadcasted to all users!"));
+    }
+
+    function adminClearNotice() {
+        if(currentUserRole !== "admin") return;
+        database.ref('system_notice/active').set(false)
+            .then(() => showToast("Notice removed from all screens."));
+    }
+
+    function adminClearChat() {
+        if(currentUserRole !== 'admin') return;
+        if(confirm("Admin Action: Clear entire global chat?")) {
+            chatRef.remove().then(() => {
+                showToast("<i class='fa fa-trash'></i> Global chat wiped successfully.");
+                chatBox.innerHTML = '';
+            });
+        }
+    }
+
+    // --- ADVANCED LIVE POLL SYSTEM ---
+    function adminStartPoll() {
+        if(currentUserRole !== "admin") return;
+        const q = document.getElementById('adminPollQuestion').value.trim();
+        const o1 = document.getElementById('adminPollOpt1').value.trim();
+        const o2 = document.getElementById('adminPollOpt2').value.trim();
+        
+        if(!q || !o1 || !o2) { 
+            showToast("<i class='fa fa-exclamation-triangle'></i> Enter Question and at least 2 options!"); 
+            return; 
+        }
+        
+        const pollData = {
+            active: true,
+            question: q,
+            timestamp: Date.now(),
+            options: [ { text: o1, votes: 0 }, { text: o2, votes: 0 } ]
+        };
+        
+        database.ref('live_poll').set(pollData).then(() => {
+            showToast("<i class='fa fa-check'></i> Live Poll Broadcasted to all users!");
+            document.getElementById('adminPollQuestion').value = "";
+            document.getElementById('adminPollOpt1').value = "";
+            document.getElementById('adminPollOpt2').value = "";
+        });
+    }
+
+    function adminEndPoll() {
+        if(currentUserRole !== "admin") return;
+        database.ref('live_poll/active').set(false).then(() => showToast("Poll Ended. Results are locked."));
+    }
+
+    // --- USER POLL LISTENER & VOTING LOGIC ---
+    let currentPollId = null;
+    function listenForPoll() {
+        database.ref('live_poll').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const pollUI = document.getElementById('livePollUI');
+            
+            if(!data || (!data.active && !currentPollId)) {
+                pollUI.classList.remove('active');
+                return;
+            }
+            
+            pollUI.classList.add('active');
+            currentPollId = data.timestamp; 
+            
+            document.getElementById('pollQuestionText').textContent = data.question;
+            document.getElementById('pollStatusBadge').textContent = data.active ? "LIVE" : "ENDED";
+            document.getElementById('pollStatusBadge').style.background = data.active ? "var(--danger)" : "var(--text-muted)";
+            
+            const container = document.getElementById('pollOptionsContainer');
+            container.innerHTML = '';
+            
+            let totalVotes = 0;
+            if(data.options) {
+                data.options.forEach(opt => totalVotes += (opt.votes || 0));
+            }
+            document.getElementById('pollTotalVotes').textContent = `Total Votes: ${totalVotes}`;
+
+            // Check if user already voted in this specific poll
+            const hasVoted = localStorage.getItem('voted_poll_' + currentPollId);
+
+            if(data.options) {
+                data.options.forEach((opt, index) => {
+                    const pct = totalVotes > 0 ? Math.round(((opt.votes || 0) / totalVotes) * 100) : 0;
+                    const btn = document.createElement('button');
+                    btn.className = 'poll-option-btn';
+                    
+                    // If user has voted or poll is ended, show progress bar results
+                    if(hasVoted || !data.active) {
+                        btn.style.cursor = 'default';
+                        btn.innerHTML = `
+                            <span style="z-index: 2;">${opt.text}</span>
+                            <span style="z-index: 2; font-weight: 800;">${pct}% (${opt.votes || 0})</span>
+                            <div class="poll-progress-bg" style="width: ${pct}%"></div>
+                        `;
+                    } else {
+                        // If not voted, show clickable options
+                        btn.innerHTML = `<span style="z-index: 2;">${opt.text}</span>`;
+                        btn.onclick = () => submitVote(index);
+                    }
+                    container.appendChild(btn);
+                });
+            }
+        });
+    }
+
+    function submitVote(index) {
+        if(!currentPollId) return;
+        if(localStorage.getItem('voted_poll_' + currentPollId)) return; // Prevent double voting
+        
+        localStorage.setItem('voted_poll_' + currentPollId, 'true');
+        
+        // Transaction to increment votes safely in Firebase
+        const voteRef = database.ref(`live_poll/options/${index}/votes`);
+        voteRef.transaction((currentVotes) => {
+            return (currentVotes || 0) + 1;
+        });
+        showToast("<i class='fa fa-check-circle'></i> Your vote has been counted!");
+    }
+
+    // --- Listen to Global Notices ---
+    function listenForNotices() {
+        database.ref('system_notice').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const noticeBar = document.getElementById('globalNoticeBar');
+            if(data && data.active && data.text) {
+                document.getElementById('noticeTextDisplay').textContent = data.text;
+                noticeBar.classList.add('active');
+            } else {
+                noticeBar.classList.remove('active');
+            }
+        });
+    }
+
     // --- Channel Logic ---
     window.masterChannels = [];
     let currentActiveId = null;
@@ -394,8 +640,7 @@
 
     const defaultWcChannels = {
         "atv_live_1": { id: "atv_live_1", title: "Global News Network", desc: "24/7 World News Live Coverage.", type: "hls", url: "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8", logo: "https://ui-avatars.com/api/?name=News&background=1a1a1a&color=ef4444&bold=true" },
-        "atv_live_2": { id: "atv_live_2", title: "NASA Space Live", desc: "Earth views and space exploration live.", type: "hls", url: "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8", logo: "https://ui-avatars.com/api/?name=NASA&background=1a1a1a&color=3b82f6&bold=true" },
-        "atv_live_3": { id: "atv_live_3", title: "LiveKhela Movies", desc: "Streaming classic animated movies 24/7.", type: "hls", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", logo: "https://ui-avatars.com/api/?name=Movies&background=1a1a1a&color=10b981&bold=true" }
+        "atv_live_2": { id: "atv_live_2", title: "NASA Space Live", desc: "Earth views and space exploration live.", type: "hls", url: "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8", logo: "https://ui-avatars.com/api/?name=NASA&background=1a1a1a&color=3b82f6&bold=true" }
     };
 
     function syncLiveDatabase() {
@@ -434,9 +679,9 @@
 
     document.getElementById('channelSearch').addEventListener('input', (e) => renderChannels(e.target.value));
 
-    // --- Advanced Real-time Timers & Viewers ---
+    // --- Timers & Viewers ---
     let streamStartTime = Date.now();
-    let baseViewers = 15400; // Starting baseline viewers
+    let baseViewers = 15400;
 
     function formatTime(seconds) {
         const h = Math.floor(seconds / 3600);
@@ -447,24 +692,19 @@
     }
 
     function updateClocks() {
-        // System Time
         const now = new Date();
         document.getElementById('system-clock').textContent = now.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: '2-digit', second: '2-digit' });
-
-        // Stream Uptime
         const diffInSeconds = Math.floor((Date.now() - streamStartTime) / 1000);
         document.getElementById('stream-uptime').textContent = formatTime(diffInSeconds);
     }
     setInterval(updateClocks, 1000);
 
-    // Fluctuate viewers dynamically to look real
     setInterval(() => {
-        const fluctuation = Math.floor(Math.random() * 80) - 40; // up or down by max 40
+        const fluctuation = Math.floor(Math.random() * 80) - 40;
         baseViewers += fluctuation;
         if(baseViewers < 1000) baseViewers = 1000;
         document.getElementById('meta-viewers').textContent = (baseViewers / 1000).toFixed(1) + "K";
     }, 4500);
-
 
     // --- Advanced REAL-TIME Firebase Chat ---
     const chatBox = document.getElementById('chatBox');
@@ -476,30 +716,24 @@
         isChatInitialized = true;
         chatBox.innerHTML = ''; 
         
-        // Load real-time messages
         chatRef.limitToLast(50).on('child_added', (snapshot) => {
             const data = snapshot.val();
             if(data) renderChatMessage(data.name, data.text, data.role, data.timestamp);
         });
 
-        // Listen for admin clears
         chatRef.on('child_removed', () => {
-            chatBox.innerHTML = '<div class="chat-msg" style="text-align: center; color: var(--danger); font-size: 11px; margin-bottom: 10px;"><i class="fa fa-info-circle"></i> Chat history was cleared by an Admin.</div>';
+            chatBox.innerHTML = '<div class="chat-msg" style="text-align: center; color: var(--danger); font-size: 11px; margin-bottom: 10px;"><i class="fa fa-info-circle"></i> Chat history was cleared by Admin.</div>';
         });
     }
 
     function renderChatMessage(name, text, role, timestamp) {
         const msg = document.createElement('div');
         msg.className = `chat-msg ${role === 'admin' ? 'admin-msg' : ''}`;
-        
         const timeFormatted = new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         
-        let badgeHtml = '';
-        if(role === 'admin') {
-            badgeHtml = '<span class="badge admin"><i class="fa fa-shield-alt"></i> ADMIN</span>';
-        } else {
-            badgeHtml = '<span class="badge user">USER</span>';
-        }
+        let badgeHtml = role === 'admin' 
+            ? '<span class="badge admin"><i class="fa fa-shield-alt"></i> ADMIN</span>' 
+            : '<span class="badge user">USER</span>';
 
         msg.innerHTML = `
             <span class="time-stamp">${timeFormatted}</span>
@@ -515,7 +749,6 @@
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
         if(text !== "") {
-            // Push Real Data to Firebase
             chatRef.push({
                 name: currentUserName,
                 role: currentUserRole,
@@ -527,32 +760,16 @@
     }
     function handleChatEnter(e) { if(e.key === 'Enter') sendUserMessage(); }
 
-    function adminClearChat() {
-        // Only functions if system role is admin
-        if(currentUserRole !== 'admin') {
-            showToast("Access Denied.");
-            return;
-        }
-        if(confirm("Admin Action: Clear entire global chat?")) {
-            chatRef.remove().then(() => {
-                showToast("<i class='fa fa-trash'></i> Global chat wiped successfully.");
-                chatBox.innerHTML = '';
-            }).catch(e => console.error(e));
-        }
-    }
-
     // --- Stream Player Logic ---
     function playStream(channel) {
         if (currentActiveId === channel.id && !video.paused) return;
         currentActiveId = channel.id;
         renderChannels(document.getElementById('channelSearch').value);
         
-        // Reset timers & fluctuate baseline for new channel
         streamStartTime = Date.now() - Math.floor(Math.random() * 3600000); 
         baseViewers = Math.floor(Math.random() * 40000) + 2000;
         updateClocks();
 
-        // Update Details
         const logo = channel.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(channel.title.charAt(0))}&background=1a1a1a&color=fff`;
         document.getElementById('meta-logo').innerHTML = `<img src="${logo}">`;
         document.getElementById('meta-channel-name').innerHTML = `${channel.title} <i class="fa fa-check-circle" style="color:var(--user); font-size:12px;"></i>`;
@@ -625,9 +842,8 @@
         setTimeout(() => { toast.style.animation = 'fadeOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
     }
 
-    // Keybindings
     document.addEventListener('keydown', (e) => {
-        if (['chatInput', 'channelSearch'].includes(document.activeElement.id)) return;
+        if (['chatInput', 'channelSearch', 'adminChId', 'adminChTitle', 'adminChUrl', 'adminChLogo', 'adminNoticeText'].includes(document.activeElement.id)) return;
         switch(e.key.toLowerCase()) {
             case ' ': e.preventDefault(); togglePlay(); break;
             case 'm': e.preventDefault(); toggleMute(); break;
@@ -645,7 +861,9 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         syncLiveDatabase();
-        initRealChat(); // Fire up Real Firebase Chat Engine
+        initRealChat(); 
+        listenForNotices(); // Start listening for Ads/Notices from Admin
+        listenForPoll(); // Start listening for Live Poll updates
     });
 </script>
 </body>
