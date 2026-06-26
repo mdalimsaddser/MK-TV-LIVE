@@ -3,166 +3,305 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-    <title>LiveKhela - Live ATV Streaming Platform</title>
+    <title>LiveKhela - Pro ATV Streaming Platform</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
         :root {
             --bg-body: #030712;
             --bg-sidebar: #0b1329;
+            --bg-header: #070b19;
             --bg-panel: #111c40;
-            --bg-input: #070b19;
+            --bg-chat: #0a1024;
+            --bg-input: #1a233a;
             
             --border: rgba(255,255,255,0.08);
             --text-main: #f9fafb;
             --text-muted: #9ca3af;
             
-            --brand: #0b84ff; /* Pure Streaming Blue Thme */
+            --brand: #0b84ff; 
             --brand-hover: #40a0ff;
             --danger: #ef4444;
             --success: #10b981;
             
             --radius-md: 16px;
-            --radius-sm: 10px;
+            --radius-sm: 8px;
             --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            --header-height: 64px;
             --font-family: 'Inter', sans-serif;
         }
         
         * { box-sizing: border-box; outline: none; transition: all 0.2s ease-in-out; margin: 0; padding: 0; }
-        body { min-height: 100vh; background: var(--bg-body); color: var(--text-main); font-family: var(--font-family); -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
+        body { background: var(--bg-body); color: var(--text-main); font-family: var(--font-family); -webkit-font-smoothing: antialiased; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        .app-container { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
-
-        /* Sidebar UI */
-        .sidebar { width: 340px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
-        .brand-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
-        .brand-logo { font-weight: 900; font-size: 24px; color: #fff; text-transform: uppercase; letter-spacing: -1px; }
+        /* --- Top Navigation Bar --- */
+        .top-navbar { height: var(--header-height); background: var(--bg-header); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 50; }
+        .nav-left { display: flex; align-items: center; gap: 24px; }
+        .brand-logo { font-weight: 900; font-size: 22px; color: #fff; text-transform: uppercase; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;}
         .brand-logo span { color: var(--brand); }
-        .atv-badge { background: linear-gradient(135deg, #0b84ff, #0052cc); color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
-
-        .search-area { padding: 16px; }
-        .search-wrapper { position: relative; }
+        .atv-badge { background: linear-gradient(135deg, #0b84ff, #0052cc); color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; vertical-align: middle;}
+        
+        .nav-center { flex: 1; max-width: 600px; padding: 0 24px; }
+        .search-wrapper { position: relative; width: 100%; }
         .search-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-input { width: 100%; height: 48px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); color: #fff; padding: 0 16px 0 46px; font-size: 14px; }
-        .search-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(11,132,255,0.2); }
+        .search-input { width: 100%; height: 40px; background: var(--bg-input); border: 1px solid transparent; border-radius: 20px; color: #fff; padding: 0 20px 0 46px; font-size: 14px; }
+        .search-input:focus { border-color: var(--brand); background: #111827; }
 
-        .channel-list-container { flex: 1; overflow-y: auto; padding: 0 16px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
-        .list-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px; }
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-icon-btn { background: transparent; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; position: relative; }
+        .nav-icon-btn:hover { color: #fff; }
+        .nav-icon-btn .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 10px; border: 2px solid var(--bg-header); }
+        .user-profile { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--brand); overflow: hidden; cursor: pointer; }
+        .user-profile img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- Main Workspace --- */
+        .workspace { display: flex; flex: 1; height: calc(100vh - var(--header-height)); overflow: hidden; }
+
+        /* --- Left Sidebar (Channels) --- */
+        .sidebar { width: 280px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; transition: transform 0.3s ease; flex-shrink: 0;}
+        .channel-list-container { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .list-header { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 12px 4px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
         .list-title { color: var(--text-muted); text-transform: uppercase; font-weight: 700; font-size: 11px; letter-spacing: 1px; }
-        .channel-count { font-size: 12px; color: #fff; font-weight: 700; background: var(--brand); padding: 2px 10px; border-radius: 20px; }
+        .channel-count { font-size: 11px; color: #fff; font-weight: 700; background: #1f2937; padding: 2px 8px; border-radius: 12px; }
 
-        /* Channel Card UI */
-        .channel-card { display: flex; align-items: center; gap: 14px; padding: 14px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius-sm); text-align: left; width: 100%; cursor: pointer;}
-        .channel-card:hover { border-color: rgba(11,132,255,0.4); background: rgba(255,255,255,0.05); transform: translateY(-2px); }
-        .channel-card.active { border-color: var(--brand); background: rgba(11,132,255,0.08); box-shadow: inset 4px 0 0 var(--brand); }
-        .ch-logo-wrapper { width: 48px; height: 44px; background: #1f2937; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 4px; overflow: hidden; border: 1px solid var(--border);}
+        .channel-card { display: flex; align-items: center; gap: 12px; padding: 10px; background: transparent; border: 1px solid transparent; border-radius: var(--radius-sm); text-align: left; width: 100%; cursor: pointer;}
+        .channel-card:hover { background: rgba(255,255,255,0.05); }
+        .channel-card.active { background: rgba(11,132,255,0.1); border-color: rgba(11,132,255,0.3); }
+        .ch-logo-wrapper { width: 40px; height: 40px; background: #1f2937; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 4px; overflow: hidden; flex-shrink: 0;}
         .ch-logo-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
         .ch-info { flex: 1; min-width: 0; }
-        .ch-name { font-size: 15px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ch-status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 4px;}
-        .ch-status.live i { color: var(--success); font-size: 7px; animation: blink 1s infinite alternate; }
+        .ch-name { font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ch-status { font-size: 11px; color: var(--text-muted); margin-top: 2px;}
+        .ch-status.live { color: var(--danger); font-weight: 600;}
+        .ch-status.live i { font-size: 6px; vertical-align: middle; margin-right: 3px; animation: blink 1s infinite alternate; }
 
-        /* Workspace Main Screen */
-        .main-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-body); overflow-y: auto; padding: 24px; justify-content: center; }
+        /* --- Center Content (Video Player & Info) --- */
+        .center-content { flex: 1; display: flex; flex-direction: column; background: var(--bg-body); overflow-y: auto; position: relative; }
+        .player-wrapper { width: 100%; background: #000; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        .video-container { width: 100%; max-width: 100%; margin: 0 auto; aspect-ratio: 16/9; position: relative; background: #000; overflow: hidden;}
+        #liveVideo { width: 100%; height: 100%; object-fit: contain; outline: none; }
+        
+        .loader-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 5; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .loader-overlay.active { opacity: 1; }
+        .spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--brand); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
 
-        /* Video Player Frame Container */
-        .player-section { background: var(--bg-panel); border-radius: var(--radius-md); border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow-lg); width: 100%; max-width: 1100px; margin: 0 auto; }
-        .video-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; }
-        #liveVideo { width: 100%; height: 100%; object-fit: contain; }
+        /* --- Custom Video Player Overlay UI --- */
+        .video-container:hover .player-overlay-controls { opacity: 1; }
+        .player-overlay-controls { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px; display: flex; flex-direction: column; gap: 10px; opacity: 0; transition: opacity 0.3s ease; z-index: 10; }
+        
+        .progress-bar-container { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; cursor: pointer; position: relative; }
+        .progress-bar-container:hover { height: 6px; }
+        .progress-fill { height: 100%; background: var(--danger); width: 100%; border-radius: 2px; position: relative; box-shadow: 0 0 10px var(--danger); }
+        .progress-fill::after { content: ''; position: absolute; right: -5px; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; background: #fff; border-radius: 50%; opacity: 0; transition: opacity 0.2s; }
+        .progress-bar-container:hover .progress-fill::after { opacity: 1; }
 
-        /* Media Controller Box */
-        .player-control-bar { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2); }
-        .current-channel-info { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1;}
-        .mini-logo { width: 44px; height: 38px; background: #1f2937; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; border: 1px solid var(--border); overflow: hidden;}
-        .mini-logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .mini-logo i { color: var(--text-muted); font-size: 18px; }
-        .current-ch-name { font-size: 17px; font-weight: 700; color: #fff; }
+        .overlay-controls-row { display: flex; justify-content: space-between; align-items: center; }
+        .overlay-left, .overlay-right { display: flex; align-items: center; gap: 15px; }
+        
+        .overlay-btn { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; opacity: 0.8; transition: opacity 0.2s, transform 0.1s; }
+        .overlay-btn:hover { opacity: 1; transform: scale(1.1); }
+        
+        .time-display { font-size: 13px; font-weight: 500; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .live-badge { background: var(--danger); color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase;}
+        .quality-badge { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid rgba(255,255,255,0.2); }
 
-        .player-btns { display: flex; align-items: center; gap: 12px; }
-        .p-btn { height: 44px; padding: 0 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; background: #1e293b; color: #fff; border: 1px solid var(--border); cursor: pointer;}
-        .p-btn:hover { background: #334155; border-color: rgba(255,255,255,0.2); }
-        .p-btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
-        .p-btn.primary:hover { background: var(--brand-hover); }
+        /* Channel Meta Details below video */
+        .channel-details-section { max-width: 1400px; margin: 0 auto; padding: 24px; width: 100%; }
+        .stream-title { font-size: 22px; font-weight: 800; margin-bottom: 16px; color: #fff; }
+        .meta-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; }
+        .meta-left { display: flex; align-items: center; gap: 16px; }
+        .meta-logo { width: 56px; height: 56px; border-radius: 50%; background: #1f2937; padding: 4px; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 2px solid var(--border);}
+        .meta-logo img { max-width: 100%; border-radius: 50%; }
+        .meta-info h2 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .meta-info p { font-size: 13px; color: var(--text-muted); }
+        
+        .subscribe-btn { background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer; margin-left: 12px;}
+        .subscribe-btn:hover { background: #e5e7eb; }
 
-        .app-footer { height: 60px; background: #070b19; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-muted); gap: 10px;}
-        .app-footer span { color: #fff; font-weight: 700; }
-        .app-footer i { color: var(--danger); animation: pulse 0.6s infinite alternate; }
-        .dev-badge { background: rgba(11,132,255,0.15); color: var(--brand-hover); padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid rgba(11,132,255,0.3); }
+        .meta-right { display: flex; gap: 12px; }
+        .action-btn { background: rgba(255,255,255,0.08); border: none; color: #fff; padding: 10px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;}
+        .action-btn:hover { background: rgba(255,255,255,0.15); }
+        .action-btn i { font-size: 16px; }
+
+        /* --- Right Sidebar (Live Chat) --- */
+        .chat-panel { width: 340px; background: var(--bg-chat); border-left: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; transition: transform 0.3s ease; flex-shrink: 0;}
+        .chat-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-header); }
+        .chat-header h3 { font-size: 14px; font-weight: 700; color: #fff; }
+        
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; font-size: 13px; }
+        .chat-msg { line-height: 1.4; word-wrap: break-word;}
+        .chat-msg .badge { background: var(--brand); color: #fff; font-size: 9px; padding: 2px 4px; border-radius: 4px; margin-right: 4px; }
+        .chat-msg .user { font-weight: 700; color: #9ca3af; margin-right: 6px; }
+        .chat-msg .text { color: #f9fafb; }
+        
+        .chat-input-area { padding: 16px; border-top: 1px solid var(--border); background: var(--bg-header); }
+        .chat-input-wrapper { display: flex; background: var(--bg-input); border-radius: var(--radius-sm); border: 1px solid transparent; overflow: hidden;}
+        .chat-input-wrapper:focus-within { border-color: var(--brand); }
+        .chat-input-wrapper input { flex: 1; background: transparent; border: none; color: #fff; padding: 12px; font-size: 13px; }
+        .chat-input-wrapper button { background: transparent; border: none; color: var(--brand); padding: 0 16px; cursor: pointer; }
+        .chat-input-wrapper button:hover { color: var(--brand-hover); }
+
+        /* Notifications & Cinema Mode */
+        .toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: rgba(17, 24, 39, 0.95); color: #fff; padding: 12px 24px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 25px rgba(0,0,0,0.5); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 12px; animation: slideUp 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; backdrop-filter: blur(10px);}
+        .toast i { color: var(--brand); font-size: 16px; }
+
+        /* Cinema Mode */
+        body.cinema-mode .top-navbar,
+        body.cinema-mode .sidebar,
+        body.cinema-mode .chat-panel,
+        body.cinema-mode .channel-details-section { display: none !important; }
+        body.cinema-mode .workspace { height: 100vh; }
+        body.cinema-mode .center-content { background: #000; justify-content: center; }
+        body.cinema-mode .video-container { max-width: 100vw; height: 100vh; }
+        
+        /* Theater Mode */
+        body.theater-mode .sidebar { display: none; }
+        body.theater-mode .center-content { background: #000; }
+        body.theater-mode .video-container { max-width: 100%; height: calc(100vh - var(--header-height) - 140px); }
 
         @keyframes blink { 0% { opacity: 0.3; } 100% { opacity: 1; } }
-        @keyframes pulse { 0% { transform: scale(0.9); } 100% { transform: scale(1.1); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
-        /* Responsive UI Optimization Rules */
-        @media (max-width: 950px) {
-            .app-container { flex-direction: column; height: auto; overflow: visible; }
-            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
-            .channel-list-container { height: 280px; }
-            .main-content { padding: 16px; }
-            .player-control-bar { flex-direction: column; text-align: center; }
-            .current-channel-info { justify-content: center; width: 100%; }
-            .player-btns { width: 100%; justify-content: center; }
-            .p-btn { flex: 1; justify-content: center; }
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .chat-panel { position: absolute; right: 0; top: 0; height: 100%; transform: translateX(100%); }
+            .chat-panel.active { transform: translateX(0); box-shadow: -10px 0 30px rgba(0,0,0,0.5); }
+        }
+        @media (max-width: 900px) {
+            .sidebar { position: absolute; left: 0; top: 0; height: 100%; transform: translateX(-100%); z-index: 40; }
+            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+            .nav-center { display: none; }
+            .meta-row { flex-direction: column; }
+            .meta-right { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+            .action-btn { flex: 1; justify-content: center; }
+            body.theater-mode .video-container { height: auto; aspect-ratio: 16/9; }
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-
-    <aside class="sidebar">
-        <div class="brand-header">
-            <i class="fa fa-play-circle fa-2x" style="color: var(--brand);"></i>
-            <div class="brand-logo">Live<span>Khela</span><span class="atv-badge">Live ATV</span></div>
+<!-- Pro Top Navigation -->
+<header class="top-navbar">
+    <div class="nav-left">
+        <button class="nav-icon-btn" id="mobileMenuBtn" style="display: none;"><i class="fa fa-bars"></i></button>
+        <div class="brand-logo">
+            <i class="fa fa-play-circle" style="color: var(--brand);"></i> 
+            Live<span>Khela</span><span class="atv-badge">PRO</span>
         </div>
-        
-        <div class="search-area">
-            <div class="search-wrapper">
-                <i class="fa fa-search"></i>
-                <input type="text" id="channelSearch" class="search-input" placeholder="সার্চ লাইভ চ্যানেল...">
-            </div>
+    </div>
+    
+    <div class="nav-center">
+        <div class="search-wrapper">
+            <i class="fa fa-search"></i>
+            <input type="text" id="channelSearch" class="search-input" placeholder="সার্চ লাইভ চ্যানেল, ইভেন্ট বা স্পোর্টস...">
         </div>
+    </div>
 
+    <div class="nav-right">
+        <button class="nav-icon-btn" title="Create"><i class="fa fa-video"></i></button>
+        <button class="nav-icon-btn" title="Notifications"><i class="fa fa-bell"></i><span class="badge">3</span></button>
+        <button class="nav-icon-btn" id="chatToggleBtn" onclick="toggleChat()" title="Live Chat"><i class="fa fa-comments"></i></button>
+        <div class="user-profile">
+            <img src="https://ui-avatars.com/api/?name=User&background=0b84ff&color=fff" alt="Profile">
+        </div>
+    </div>
+</header>
+
+<div class="workspace">
+    <!-- Left Sidebar: Channels -->
+    <aside class="sidebar" id="sidebarUI">
         <div class="channel-list-container">
             <div class="list-header">
-                <div class="list-title">লাইভ ব্রডকাস্ট চ্যানেলসমূহ</div>
+                <div class="list-title">Recommended Channels</div>
                 <div class="channel-count" id="channel-count">0</div>
             </div>
-            <div id="channelStrip" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            <div id="channelStrip"></div>
         </div>
     </aside>
 
-    <main class="main-content">
-
-        <section class="player-section" id="playerCard">
-            <div class="video-container">
-                <video id="liveVideo" controls playsinline poster="https://images.unsplash.com/photo-1534774592507-488885376ad3?q=80&w=1200&auto=format&fit=crop"></video>
-            </div>
-            
-            <div class="player-control-bar">
-                <div class="current-channel-info">
-                    <div class="mini-logo" id="active-logo"><i class="fa fa-tv"></i></div>
-                    <div class="current-ch-name" id="active-name">চ্যানেল সিলেক্ট করুন</div>
-                </div>
+    <!-- Center Workspace: Player & Details -->
+    <main class="center-content">
+        <div class="player-wrapper">
+            <div class="video-container" id="playerCard">
+                <div class="loader-overlay" id="videoLoader"><div class="spinner"></div></div>
+                <!-- Native controls removed, custom overlay added -->
+                <video id="liveVideo" playsinline poster="https://images.unsplash.com/photo-1534774592507-488885376ad3?q=80&w=1200&auto=format&fit=crop" onclick="togglePlay()"></video>
                 
-                <div class="player-btns">
-                    <button type="button" class="p-btn primary" id="playBtn" onclick="togglePlay()"><i class="fa fa-play"></i> প্লে</button>
-                    <button type="button" class="p-btn" id="muteBtn" onclick="toggleMute()"><i class="fa fa-volume-up"></i> সাউন্ড</button>
-                    <button type="button" class="p-btn" id="fullscreenBtn" onclick="toggleFullscreen()"><i class="fa fa-expand"></i> ফুলস্ক্রিন</button>
+                <div class="player-overlay-controls">
+                    <div class="progress-bar-container" id="progressBarContainer">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="overlay-controls-row">
+                        <div class="overlay-left">
+                            <button class="overlay-btn" onclick="togglePlay()" title="Play/Pause (Space)"><i class="fa fa-play" id="overlayPlayIcon"></i></button>
+                            <button class="overlay-btn" onclick="toggleMute()" title="Mute/Unmute (M)"><i class="fa fa-volume-up" id="overlayMuteIcon"></i></button>
+                            <div class="time-display">
+                                <span class="live-badge"><i class="fa fa-circle" style="font-size: 6px; vertical-align: middle; margin-right: 3px;"></i> LIVE</span>
+                                <span id="stream-uptime" style="margin-left: 5px;">0:00</span>
+                                <span class="quality-badge" style="margin-left: 10px;">1080p60 HD</span>
+                            </div>
+                        </div>
+                        <div class="overlay-right">
+                            <button class="overlay-btn" onclick="toggleTheaterMode()" title="Theater Mode (T)"><i class="fa fa-tv"></i></button>
+                            <button class="overlay-btn" onclick="togglePiP()" title="Picture-in-Picture"><i class="fa fa-clone"></i></button>
+                            <button class="overlay-btn" onclick="toggleCinemaMode()" title="Cinema Mode (C)"><i class="fa fa-moon"></i></button>
+                            <button class="overlay-btn" onclick="toggleFullscreen()" title="Fullscreen (F)"><i class="fa fa-expand"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
 
+        <!-- Channel Meta Details -->
+        <div class="channel-details-section">
+            <h1 class="stream-title" id="meta-title">Please Select a Channel to Watch</h1>
+            <div class="meta-row">
+                <div class="meta-left">
+                    <div class="meta-logo" id="meta-logo"><i class="fa fa-tv text-muted fa-2x"></i></div>
+                    <div class="meta-info">
+                        <h2 id="meta-channel-name">LiveKhela ATV</h2>
+                        <p>
+                            <span style="color: var(--danger); font-weight: 600;"><i class="fa fa-circle" style="font-size: 8px;"></i> LIVE</span> • 
+                            <span id="meta-viewers">12.4K</span> watching now
+                        </p>
+                    </div>
+                    <button class="subscribe-btn">Subscribe</button>
+                </div>
+                <div class="meta-right">
+                    <button class="action-btn" onclick="showToast('Liked!')"><i class="fa fa-thumbs-up"></i> 4.2K</button>
+                    <button class="action-btn" onclick="showToast('Share link copied!')"><i class="fa fa-share"></i> Share</button>
+                    <button class="action-btn"><i class="fa fa-ellipsis-h"></i></button>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <!-- Right Sidebar: Live Chat -->
+    <aside class="chat-panel" id="chatPanelUI">
+        <div class="chat-header">
+            <h3>Live Chat</h3>
+            <button class="nav-icon-btn" onclick="toggleChat()"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="chat-messages" id="chatBox">
+            <div class="chat-msg" style="text-align: center; color: var(--text-muted); font-size: 11px; margin-bottom: 10px;">Welcome to Live Chat! Remember to be kind.</div>
+        </div>
+        <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+                <input type="text" placeholder="Send a message..." id="chatInput" onkeypress="handleChatEnter(event)">
+                <button onclick="sendUserMessage()"><i class="fa fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </aside>
 </div>
 
-<footer class="app-footer">
-    &copy; 2026 LiveKhela. All Rights Reserved. Crafted with <i class="fa fa-heart"></i> By <span>Md Sabbir Hossain</span>
-    <div class="dev-badge">ATV Core Console</div>
-</footer>
+<div class="toast-container" id="toastContainer"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -170,7 +309,6 @@
 <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
 <script>
-    // Firebase Environment Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyDwoNn4MtQl_XOuPbgxQ8fM_BEkQ_D3cYg",
         authDomain: "movie11-49b83.firebaseapp.com",
@@ -178,10 +316,8 @@
         projectId: "movie11-49b83",
         storageBucket: "movie11-49b83.firebasestorage.app",
         messagingSenderId: "258731348509",
-        appId: "1:258731348509:web:1ce4fe9d0da9f7504f2cf4",
-        measurementId: "G-7NK63C9FCL"
+        appId: "1:258731348509:web:1ce4fe9d0da9f7504f2cf4"
     };
-
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
@@ -191,32 +327,23 @@
     let dashInstance = null;
 
     const video = document.getElementById('liveVideo');
-    const playBtn = document.getElementById('playBtn');
-    const muteBtn = document.getElementById('muteBtn');
+    const loader = document.getElementById('videoLoader');
 
-    // ৪টি ডিফল্ট স্ট্রিমিং চ্যানেল সোর্স ব্যাকআপ ব্যাকএন্ড
+    // 100% Working Public Live Streams for a "Real Show" feel
     const defaultWcChannels = {
-        "atv_source_1": { id: "atv_source_1", title: "Premium ATV Stream 1", type: "hls", url: "https://amg26268-amg26268c14-freelivesports-emea-10267.playouts.now.amagi.tv/ts-us-e2-n2/playlist/amg26268-sportsstudio-tycsports-freelivesportsemea/cb573b1c6570608f84c83d64cef045826e371fde1d6988693eb5518975d10725dce2b48be65b9e3608dd4087351a654f5d79cb12ce1f7cdaa973ad54516c6531c3c4e664bb981477d5c11f5b6af3264b36ab5c6e89614c278abe545bd37dfd522d27c52522163e84b60cbd010796db55926f5ad3ef823c6c625b5b96435dfba040a3ef9c02178130f4a17f19c37e07be9d47cad302b886c64fcd118324f51dc896ed8dd414849b9062ff56af350b0f75309fd27b97cc09e38bc9386d9943282c663d67080e9c345eb3740131cdf1c2ab60fb53fd9d24956524c978f22daa11faa62e94c59b238ea2a9cb4a0118a9c1496824a19fc0c09b6775d5ee9cd36a1888d8d97636583e515e5be7d02ca85d817ba5ce1084bf2084fb4a1531c3904294a714e28555ec67933fc3cbf89972170033444aaa54ac8f758069fc76acdc1c28580d1ce3ca1b94dd996d1d2f68dfd50be15339acd28787903c6a9c4e2c13a841c94b0969fb316e57ec39b6cf6f3bc7755cc57d16d36c18ac0ebcb425fea29bc20338bed18e02dc67fdba07d7b953fd3472094ce3bc7c1f68437fd9e2634d0378c544f6da85b4245e4ebfa1bf8eaa3419093d055d058f908228d5de8e79675cab3415617903029803a40eec0144133bc719a9c43a59c8217878b3927d31776394c1bd84c7e6c24bbb7ad9acac6a7cdb38d54de5b44056244e35e922322778b371ab64d534d4/133/1920x1080_5162480/index.m3u8", logo: "" },
-        "atv_source_2": { id: "atv_source_2", title: "Premium ATV Stream 2", type: "hls", url: "https://nomawnoijl.gpcdn.net/akash/sportslegends/chunks.m3u8", logo: "" },
-        "atv_source_3": { id: "atv_source_3", title: "Premium ATV Stream 3", type: "hls", url: "https://origin.rebelolivenetwork.com/live/stream/playlist.m3u8", logo: "" }
+        "atv_source_1": { id: "atv_source_1", title: "Global News Live", desc: "24/7 International News Broadcast.", type: "hls", url: "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8", logo: "https://ui-avatars.com/api/?name=News&background=ef4444&color=fff&bold=true" },
+        "atv_source_2": { id: "atv_source_2", title: "NASA Space & Tech", desc: "Live coverage from outer space and tech.", type: "hls", url: "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8", logo: "https://ui-avatars.com/api/?name=NASA&background=0b1329&color=0b84ff&bold=true" },
+        "atv_source_3": { id: "atv_source_3", title: "LiveKhela Movies", desc: "Streaming classic animated movies 24/7.", type: "hls", url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", logo: "https://ui-avatars.com/api/?name=Movies&background=10b981&color=fff&bold=true" }
     };
 
-    // ਫায়ারবেজ স্ট্রিমিং ডেটাবেজ লুপ রেন্ডারার
     function syncLiveDatabase() {
         database.ref('channels').on('value', (snapshot) => {
             const data = snapshot.val();
-            if (!data) {
-                database.ref('channels').set(defaultWcChannels);
-                return;
-            }
+            if (!data) { database.ref('channels').set(defaultWcChannels); return; }
             window.masterChannels = [];
-            for (let key in data) {
-                if(data[key]) window.masterChannels.push(data[key]);
-            }
+            for (let key in data) { if(data[key]) window.masterChannels.push(data[key]); }
             renderChannels();
-            if (window.masterChannels.length > 0 && !currentActiveId) {
-                playStream(window.masterChannels[0]);
-            }
+            if (window.masterChannels.length > 0 && !currentActiveId) { playStream(window.masterChannels[0]); }
         });
     }
 
@@ -227,22 +354,18 @@
 
         window.masterChannels.forEach((ch) => {
             if (filterText && !ch.title.toLowerCase().includes(filterText.toLowerCase())) return;
-            
             const isActive = ch.id === currentActiveId;
-            const card = document.createElement('button');
+            const card = document.createElement('div');
             card.className = `channel-card ${isActive ? 'active' : ''}`;
             card.onclick = () => playStream(ch);
             
-            const viewers = (Math.random() * 8 + 2).toFixed(1);
-            const logo = ch.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(ch.title)}&background=111c40&color=fff`;
-
+            const logo = ch.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(ch.title.charAt(0))}&background=1f2937&color=fff&bold=true`;
             card.innerHTML = `
-                <div class="ch-logo-wrapper"><img src="${logo}" onerror="this.src='https://ui-avatars.com/api/?name=TV&background=111c40&color=fff'"></div>
+                <div class="ch-logo-wrapper"><img src="${logo}" onerror="this.src='https://ui-avatars.com/api/?name=TV&background=1f2937&color=fff'"></div>
                 <div class="ch-info">
                     <div class="ch-name">${ch.title}</div>
-                    <div class="ch-status live"><i class="fa fa-circle"></i> LIVE • ${viewers}K views</div>
+                    <div class="ch-status live"><i class="fa fa-circle"></i> Live</div>
                 </div>
-                ${isActive ? '<i class="fa fa-volume-up" style="color: var(--brand);"></i>' : ''}
             `;
             strip.appendChild(card);
             visibleCount++;
@@ -252,20 +375,81 @@
 
     document.getElementById('channelSearch').addEventListener('input', (e) => renderChannels(e.target.value));
 
-    // ভিডিও ইঞ্জিন কোর প্লেয়ার ইন্টিগ্রেশন (HLS / DASH)
+    // Chat Simulation & Uptime Engine
+    const chatNames = ["Alex_99", "ProGamerBD", "Nila20", "SportsFanatic", "User781", "DhakaBoy", "CrazyStreamer", "ChillVibes"];
+    const chatTexts = ["Let's goooo!", "What a play 🔥", "Is the stream lagging for anyone else?", "1080p looks crisp.", "Hello everyone!", "W", "Can't wait for the main event", "PogChamp"];
+    const chatBox = document.getElementById('chatBox');
+    let chatInterval;
+    let uptimeInterval;
+    let streamStartTime = Date.now();
+
+    function formatTime(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function updateUptime() {
+        const now = Date.now();
+        const diffInSeconds = Math.floor((now - streamStartTime) / 1000);
+        document.getElementById('stream-uptime').textContent = formatTime(diffInSeconds);
+    }
+
+    function addChatMessage(name, text, isSelf = false) {
+        const msg = document.createElement('div');
+        msg.className = 'chat-msg';
+        msg.innerHTML = `${isSelf ? '<span class="badge">You</span>' : ''}<span class="user">${name}:</span><span class="text">${text}</span>`;
+        chatBox.appendChild(msg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function clearChat() {
+        chatBox.innerHTML = '<div class="chat-msg" style="text-align: center; color: var(--text-muted); font-size: 11px; margin-bottom: 10px;">Welcome to Live Chat!</div>';
+        clearInterval(chatInterval);
+        chatInterval = setInterval(() => {
+            if(Math.random() > 0.4) {
+                const randomName = chatNames[Math.floor(Math.random() * chatNames.length)];
+                const randomText = chatTexts[Math.floor(Math.random() * chatTexts.length)];
+                addChatMessage(randomName, randomText);
+            }
+        }, 3000);
+    }
+
+    function sendUserMessage() {
+        const input = document.getElementById('chatInput');
+        if(input.value.trim() !== "") {
+            addChatMessage("You", input.value, true);
+            input.value = "";
+        }
+    }
+    function handleChatEnter(e) { if(e.key === 'Enter') sendUserMessage(); }
+
     function playStream(channel) {
         if (currentActiveId === channel.id && !video.paused) return;
         currentActiveId = channel.id;
         renderChannels(document.getElementById('channelSearch').value);
         
-        const logo = channel.logo || `https://ui-avatars.com/api/?name=TV&background=111c40&color=fff`;
-        document.getElementById('active-logo').innerHTML = `<img src="${logo}">`;
-        document.getElementById('active-name').textContent = channel.title;
+        // Reset uptime for new channel
+        streamStartTime = Date.now() - Math.floor(Math.random() * 7200000); // Random start time up to 2 hours ago
+        clearInterval(uptimeInterval);
+        uptimeInterval = setInterval(updateUptime, 1000);
+        updateUptime();
+
+        // Update Meta Details
+        const logo = channel.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(channel.title.charAt(0))}&background=1f2937&color=fff`;
+        document.getElementById('meta-logo').innerHTML = `<img src="${logo}">`;
+        document.getElementById('meta-channel-name').textContent = channel.title;
+        document.getElementById('meta-title').textContent = channel.desc || `${channel.title} - Official Live Broadcast`;
+        document.getElementById('meta-viewers').textContent = (Math.random() * 20 + 5).toFixed(1) + "K";
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         if (dashInstance) { dashInstance.reset(); dashInstance = null; }
         
         video.pause(); video.removeAttribute('src'); video.load();
+        loader.classList.add('active'); 
+        showToast(`<i class="fa fa-satellite-dish"></i> Tuned to ${channel.title}`);
 
         if (channel.type === 'hls' || channel.url.includes('.m3u8')) {
             if (Hls.isSupported()) {
@@ -273,33 +457,93 @@
                 hlsInstance.loadSource(channel.url);
                 hlsInstance.attachMedia(video);
                 hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=> video.muted=true));
-            } else {
-                video.src = channel.url;
-            }
+            } else { video.src = channel.url; }
         } else {
             dashInstance = dashjs.MediaPlayer().create();
             dashInstance.initialize(video, channel.url, true);
         }
         updateMediaUI();
+        clearChat();
     }
 
-    function togglePlay() { if (video.paused) video.play().catch(()=>{}); else video.pause(); updateMediaUI(); }
+    // --- Custom Controls & Modes ---
+    function togglePlay() { 
+        if (video.paused) video.play().catch(()=>{}); 
+        else video.pause(); 
+        updateMediaUI(); 
+    }
     function toggleMute() { video.muted = !video.muted; updateMediaUI(); }
+    
     function toggleFullscreen() {
         if (!document.fullscreenElement) document.getElementById('playerCard').requestFullscreen().catch(()=>video.webkitEnterFullscreen?.());
         else document.exitFullscreen();
     }
+    
+    async function togglePiP() {
+        try { document.pictureInPictureElement ? await document.exitPictureInPicture() : await video.requestPictureInPicture(); } 
+        catch (e) { showToast("PiP not supported in this browser."); }
+    }
+    
+    function toggleTheaterMode() {
+        document.body.classList.toggle('theater-mode');
+        document.body.classList.remove('cinema-mode'); 
+        showToast(document.body.classList.contains('theater-mode') ? "Theater Mode Enabled" : "Theater Mode Disabled");
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    function toggleCinemaMode() {
+        document.body.classList.toggle('cinema-mode');
+        document.body.classList.remove('theater-mode'); 
+        showToast(document.body.classList.contains('cinema-mode') ? "Cinema Mode Enabled" : "Cinema Mode Disabled");
+    }
+    
+    function toggleChat() { 
+        document.getElementById('chatPanelUI').classList.toggle('active'); 
+    }
+
     function updateMediaUI() {
-        playBtn.innerHTML = video.paused ? '<i class="fa fa-play"></i> প্লে' : '<i class="fa fa-pause"></i> পজ';
-        muteBtn.innerHTML = video.muted ? '<i class="fa fa-volume-mute"></i> মিউট' : '<i class="fa fa-volume-up"></i> সাউন্ড';
+        const isPaused = video.paused;
+        const isMuted = video.muted;
+        // Update Overlay Icons
+        document.getElementById('overlayPlayIcon').className = isPaused ? 'fa fa-play' : 'fa fa-pause';
+        document.getElementById('overlayMuteIcon').className = isMuted ? 'fa fa-volume-mute' : 'fa fa-volume-up';
     }
 
     video.addEventListener('play', updateMediaUI);
     video.addEventListener('pause', updateMediaUI);
+    video.addEventListener('waiting', () => loader.classList.add('active'));
+    video.addEventListener('playing', () => loader.classList.remove('active'));
 
-    // লাইফসাইকেল বুটস্ট্র্যাপ রানার
+    function showToast(message) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = message;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.animation = 'fadeOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 2500);
+    }
+
+    // Keyboard Bindings
+    document.addEventListener('keydown', (e) => {
+        if (['chatInput', 'channelSearch'].includes(document.activeElement.id)) return;
+        switch(e.key.toLowerCase()) {
+            case ' ': e.preventDefault(); togglePlay(); break;
+            case 'm': e.preventDefault(); toggleMute(); break;
+            case 'f': e.preventDefault(); toggleFullscreen(); break;
+            case 'c': e.preventDefault(); toggleCinemaMode(); break;
+            case 't': e.preventDefault(); toggleTheaterMode(); break;
+        }
+    });
+
+    // Mobile Menu Toggle
+    if(window.innerWidth <= 900) { document.getElementById('mobileMenuBtn').style.display = 'block'; }
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+        document.getElementById('sidebarUI').classList.toggle('active');
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
         syncLiveDatabase();
+        clearChat();
     });
 </script>
 </body>
